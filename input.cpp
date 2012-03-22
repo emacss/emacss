@@ -122,7 +122,7 @@ void set_galaxy(variables *init){
   if (init->galaxy.M == 0 || init->galaxy.R == 0)
     galaxy_all(init); 
 
-  if (r_j(init)/init->r0 < 0.769){            //r/rj = 0.77rh/rj so > 1/10
+  if (r_j(init)/init->r0 < 7.69){            //r/rj = 0.77rh/rj so > 1/10
     cerr << endl;
     cerr << "Invalid tidal field strength (too strong for prediction): R = ";
     cerr <<setprecision(3) << init->r0/r_j(init) << endl;
