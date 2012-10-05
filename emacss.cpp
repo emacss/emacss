@@ -26,14 +26,10 @@ int main(int argc, char* argv[]){
   variables init;
   parameters params;
 
-  readinput(&init,argc,argv);
   get_params(&params);
+  readinput(&init,&params,argc,argv);
   cluster.initialise(params,init);
-  cluster.core_collapse();
-  while (cluster.N > 200){
-    cluster.evolve();
-    cluster.output();
-  }
+  cluster.output_time(init.tout);
   return 0;
 }
 
@@ -52,7 +48,7 @@ void node::initialise(parameters in1, variables in2){
   R_gal =  init.galaxy.R;
   if (init.units==1) set_units();
   
-  l1 = l2 = l3 = l4 = l5 = true;           //Sets flags for lazy evaluation
+  l1 = l2 = l3 = l4 = l5 = l6 = true;      //Sets flags for lazy evaluation
   
   t = 0;                                   //Assigns first data point
   N = Nstart = y[0] = trial[0] = init.N0;
@@ -60,12 +56,15 @@ void node::initialise(parameters in1, variables in2){
   mm = y[2] =  trial[2] = 1.0/init.N0;
 
   zeta = init.zeta;                        //Other user specifications
-  toff = init.tcc;
+  collapse_time = init.tcc*trh();
+  s = init.s;
+
+  if (init.tcc > 0) prepare_interpolators();
 
   n_relax = 0;                             //Other initialisations
   first = true;
   interp = 1;
-  output();
+  s = init.s;
 }
 
 void node::set_units(){
@@ -94,7 +93,7 @@ void node::evolve(){
 void node::solve_diffs(double deriv[]){
   /*Differential equations in usable form for the rk4 routine.*/
 
-  l1 = l2 = l3 = l4 = l5 = true; //Sets flags for lazy evaluation
+  l1 = l2 = l3 = l4 = l5 = l6 = true; //Sets flags for lazy evaluation
   deriv[0] = dNdt();
   deriv[1] = drdt();
   deriv[2] = dmmdt();
@@ -111,8 +110,8 @@ double node::drdt(){
   return (mu()*trial[1])/trh();                    //Equation (7) AG2012
 }
 
-double node::dmmdt(){
-  return 0.0;                                      //To be implemented in future
+double node::dmmdt(){				   //Modification for stellar
+  return 0.0;		                      	   //evolution 
 }
 
 double node::dtrhdt(){

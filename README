@@ -1,4 +1,4 @@
-	 Evolve Me A Cluster of StarS (EMACSS) - version 1.03
+	 Evolve Me A Cluster of StarS (EMACSS) - version 1.04
 	 By: Poul Alexander (University of Cambridge)
  	     Mark Gieles (University of Cambridge)
 
@@ -19,9 +19,8 @@
 	 Full documentation is available in Alexander & Gieles 2012
 
 	 The options to specify a cluster (initial number of stars,
-	 half mass radius) can be specified with appropriate options 
-	 (see below) 
-
+	 half mass radius) can be specified with
+	 appropriate options (see below) 
 	 The output is printed directly onto the command line; we 
 	 therefore suggest piping this output into a file or plotting
 	 package.
@@ -33,24 +32,26 @@
 	 -version: Displays the current version number and version log.
 	 -u: (Input) N-body or Real units. 
 		 0=N-body (see Heggie & Mathieu 1986)
-		 1=Real [parsec, solar masses, Myr]
+		 1=Real [parsec, solar masses, Myr] 
 	 -N: initial number of stars in cluster.
 	 -r: initial half-mass radius of cluster [pc if u = 1
-	     ignored if u = 0].
+	     ignored if u = 0 ]
 	 -m: mean mass of stars [solar masses].
-	 -t: start of balanced evolution (default is 20trh0).
-	 -R: initial ratio of virial radius to Jacobi radius.
+	 -t: Start of balanced evolution (default is 20trh0).
+	 -R: initial ratio of virial to Jacobi radius.
 	 -M: mass of point mass galaxy around which the cluster is
 	     in orbit.
 	 -d: distance to the point mass galaxy around which the cluster
 	     is in orbit [kpc if u = 1, krv (virial radius * 1000)
 	     otherwise].
-	 -v: orbital velocity of cluster around galaxy. [km/s]
+	 -v: Orbital velocity of cluster around galaxy. [km/s]
 	 -l: mass loss prior to core collapse.
 	 -x: expansion prior to core collapse.
 	 -e: change in mean mass prior to core collapse.
 	 -z: value for zeta (otherwise default, 0.111 (equal mass 
 	     clusters) is used).
+	 -f: Finish time. If specified will only output data at the 
+	     specified time.
 
 	 Tidal field is specified first by MG and RG, if these are
 	 provided. If one or both are missing, the code will first 

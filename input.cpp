@@ -6,7 +6,7 @@
    Essential inputs: N, rh0 & rhrj (or galaxy R and M)
    Optional inputs: pre-core collapse expansion (f_r), mass loss (f_N)*/
 
-void readinput(variables *init, int argc, char* argv[]){
+void readinput(variables *init, parameters *p, int argc, char* argv[]){
   /*Gets conditions of N-body run - uses standard C getopt function for 
     command line input. If values are not supplied, defaults are used.*/
 
@@ -22,7 +22,7 @@ void readinput(variables *init, int argc, char* argv[]){
     
   zero(init); //Zero's the code (i.e., sets a default set of conditions)
   while (( c = getopt 
-	   (argc,argv, "u:N:r:m:k:t:R:M:d:v:l:x:e:a:z:c:")) != -1)
+	   (argc,argv, "u:N:r:m:k:t:R:M:d:v:l:x:e:a:z:c:s:f:")) != -1)
     switch (c){
     case ('u'):                              //User unit selection (for input)
       value = optarg;
@@ -32,7 +32,6 @@ void readinput(variables *init, int argc, char* argv[]){
       value = optarg;
       init-> N0 = atof(value);
 	  if (init->N0 < 256) {
-		cerr << "Error - N to low. Aborting..." << endl;
 		exit(1);
 	  }
 	  break;
@@ -49,6 +48,10 @@ void readinput(variables *init, int argc, char* argv[]){
     case ('t'):                              //tcc (20trh0 in AG2012)
       value = optarg;
       init->tcc = atof(value);
+      break;
+    case ('f'):                              //Output time (single output)
+      value = optarg;
+      init->tout = atof(value);
       break;
     case ('R'):                              //r_h/r_j at time=0
       value = optarg;
@@ -79,7 +82,6 @@ void readinput(variables *init, int argc, char* argv[]){
     case ('e'):                              //core collapse change in mean mass
       value = optarg;
       init->f_mm = atof(value);
-      init->s3 = false;
       break;  
     case ('z'):                              //adjustable zeta
       value = optarg;
@@ -88,9 +90,13 @@ void readinput(variables *init, int argc, char* argv[]){
      }
   set_cluster(init);
   set_galaxy(init);
-  early_evolution(init);
+  early_evolution(init,p->gamma);
 
-  init->galaxy.M =  init->galaxy.M*init->mm0; //Converts to mean masses
+  if (init->units == 0)
+    init->galaxy.M =  init->galaxy.M*init->mm0; //Converts to mean masses
+  if (init->tout == 0) {
+    cerr << "Output time not specified. Evolving until N < 100" << endl;
+  }
 }
 
 void set_cluster(variables *init){
@@ -105,8 +111,8 @@ void set_cluster(variables *init){
     init->mm0 = 1.0/init->N0;                 //Has to occur for N-body units
    }
   else if ( init->units == 1 && init->mm0 == 0 ){
-      cerr << "No mean mass supplied. Using m=0.5M_sun." << endl;   
-      init->mm0 = 0.5;                        //0.5M_sun if real units.
+    cerr << "No mean mass supplied. Using m=0.5M_sun." << endl;   
+    init->mm0 = 0.5;                        //0.5M_sun if real units.
   }
 }
 
@@ -139,14 +145,14 @@ void set_galaxy(variables *init){
   if (in->units == 1) G = 4.30172e-3   ;         //(parsec*(km/s)^2)
   
   if ( in->galaxy.R == 0 && in->galaxy.M != 0)
-    in->galaxy.R = (2.0*G*in->galaxy.M)/pow(in->galaxy.v,2);
+    in->galaxy.R = (G*in->galaxy.M)/pow(in->galaxy.v,2);
   else if ( in->galaxy.M == 0 && in->galaxy.R != 0)
-    in->galaxy.M = (pow(in->galaxy.v,2)*in->galaxy.R)/(2.0*G);
+    in->galaxy.M = (pow(in->galaxy.v,2)*in->galaxy.R)/(G);
   else if ( in->galaxy.M == 0 && in->galaxy.R == 0) {
     cerr << "No galaxy mass or galactocentric radius supplied -";
     cerr << "Using MG=1e10M_sun" << endl;
     in->galaxy.M = 1e10;
-    in->galaxy.R = (2.0*G*in->galaxy.M)/pow(in->galaxy.v,2);
+    in->galaxy.R = (G*in->galaxy.M)/pow(in->galaxy.v,2);
   }
   else
     cerr << "Velocity, M_G and R_G specified. Ignoring velocity" << endl;
@@ -222,41 +228,51 @@ void galaxy_all(variables *in){
 }
 
 double r_j(variables *in){
-  /*Jacobi radius function (ie, find r_j*/
+  /*Jacobi radius function (ie, find r_j)*/
   return pow((in->N0)/(3.0*in->galaxy.M),(1.0/3.0))*in->galaxy.R;
 }
 
-void early_evolution(variables *init){
+double trh(variables *in, float gamma){
+  /*half mass relaxation time function (ie, find trh)*/
+  return 0.138*sqrt(in->N0*pow(in->r0,3)/(in->mm0))/(log(gamma*in->N0));
+}
+
+void early_evolution(variables *init, float gamma){
   /* Basic prescriptions for pre-core collapse behaviour. This is based on 
      figure 7 in AG2012, and is roughly accurate for 20 < R < infinity. This
      can be extended to R = 10, although accuracy suffers at this point.*/
   double R = init->r0/(r_j(init)/0.77);   //0.77 on account of half-mass radius
   if (init->s1) init->f_N = 1.95-exp(80.0*pow(R,2.4));
   if (init->s2) init->f_r = 1.75*exp(-2.2*pow(R,0.55)); 
-  /*Additional factor of 0.77 present on account of conversion from half mass 
-    to virial radius during the pre-collapse expansion. Thus, an initially 
-    quoted half mass radius is converted to virial radius by this factor.*/
   if (init->s3) init->f_mm = 1.0;
+
+  if (init->tcc == 0) {
+    init->f_mm = 1; 
+    init->f_N = 1;
+    init->f_r = 1;
+  }
 }
 
 void zero(variables *in){
   /*Initialises a cluster to unphysical values. These are default flags used
     by the code to detect which properties are user defined.*/
-  cerr << endl; 
-  cerr << "Evolve Me A Cluster of Stars v1.03" << endl;
-  cerr << "-----------------------------------------"<<endl; 
+    cerr << endl; 
+    cerr << "Evolve Me A Cluster of Stars v1.04" << endl;
+    cerr << "-----------------------------------------"<<endl; 
 
   in->N0 = 0;
   in->r0 = 0;              
   in->mm0 = 0;              
   in->galaxy.M = 0;         
   in->galaxy.R = 0;         
-  in->tcc = 20.0*sqrt(pow(0.77,3)); //20*trh, where trh0 is defined by rh=0.77rv
-  in->zeta = 0.111;                 //Default (for equal mass cluster)
-  in->s1 = in->s2 = in->s3 = true;  //Sets quantities to be defined
+  in->tcc = 20*sqrt(pow(0.77,3));  //20*trh, where trh0 is defined by rh=0.77rv
+  in->zeta = 0.111;                 
+  in->s1 = in->s2 = true;           //Sets quantities to be defined
   in->units = 1;                    //Physical units
   in->rjrh = 0;
   in->galaxy.v = 0;
+  in->s = 0;
+  in->tout = 0;
 
   /*Note - the core collapse time, 20*trh0, uses the exact value of rh = 0.77rv
     (Plummer model) for the scaling of relaxation time (trh0). This occurs the 
@@ -266,7 +282,7 @@ void zero(variables *in){
 }
 
 void help(){
-  cout << "\t Evolve Me A Cluster of StarS (EMACSS) - version 1.03";
+  cout << "\t Evolve Me A Cluster of StarS (EMACSS) - version 1.04";
   cout << '\n';
   cout << "\t By: Poul Alexander (University of Cambridge)\n ";
   cout << "\t     Mark Gieles (University of Cambridge)\n";
@@ -319,6 +335,8 @@ void help(){
   cout << "\t -e: change in mean mass prior to core collapse.\n";
   cout << "\t -z: value for zeta (otherwise default, 0.111 (equal mass \n";
   cout << "\t     clusters) is used).\n";
+  cout << "\t -f: Finish time. If specified will only output data at the \n";
+  cout << "\t     specified time.\n";	
   cout << '\n';
   cout << "\t Tidal field is specified first by MG and RG, if these are\n";
   cout << "\t provided. If one or both are missing, the code will first \n";
@@ -359,6 +377,8 @@ void version(){
   cout << "\t 1.02 - Inclusion mass loss in isolated regime (this is xi0.\n";
   cout << "\t        equation (3), Baumguardt, Hut, Heggie).\n ";
   cout << "\t 1.03 - Version published with AG2012 on ArXiv (20/03/2012)\n";
+  cout << "\t 1.04 - Bug fixed version, with addition of option for output \n";
+  cout << "\t        at a user specified time only.\n ";
   cout << '\n';
 
   exit(1);

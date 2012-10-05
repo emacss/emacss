@@ -28,24 +28,26 @@ which are alternatively used. */
 
 void node::prepare_interpolators(){
 
-   /* array 'y' stores initial values (y_0), 'dr1' stores final values (y_1),
-     dr2 stores final derivatives (dy_1/dx_1), dr3 stores b and dr4 stores c. */
+  double trh_old = trh();                     //temporary relaxation time store
 
+  /* array 'y' stores initial values (y_0), 'dr1' stores final values (y_1),
+     dr2 stores final derivatives (dy_1/dx_1), dr3 stores b and dr4 stores c. */
+   
   trial[0] = dr1[0] = N*init.f_N;
   trial[1] = dr1[1] = r*init.f_r;
   trial[2] = dr1[2] = mm*init.f_mm;
-
   l2 = true;  
-  t = collapse_time;
   solve_diffs(dr2);                           //Gets post collapse derivatives
-  t = 0;
-
+  cout << dr1[0] << ' ' << dr1[1] << ' ' << dr1[2] << endl;
+  cout << dr2[0] << ' ' << dr2[1] << ' ' << dr2[2] << endl;
   for (int i = 0 ; i < 3 ; i++){              //Decides if polynomial
     if ((dr1[i] < 1.15*y[i] && dr2[i] > 0 ) || (dr1[i] > y[i]/1.15 && dr2[i] < 0 ))
     //factors of 1.15 - prevent "very" sharp turns in exp functions.
 	dr6[i] = 1;
     else dr6[i] = 0;
   } 
+
+
 
   trial[0] = N;                               //Resets flag on trh+prepares
   trial[1] = r;
@@ -61,34 +63,24 @@ void node::prepare_interpolators(){
       dr4[i] = poly_get_b(i);                 //Solves equations for b (poly)
     }
   } 
-  //  cout << dr1[0] << ' ' << dr1[1] << ' ' << dr1[2] << endl;
-  //  cout << dr2[0] << ' ' << dr2[1] << ' ' << dr2[2] << endl;
-  //  cout << dr3[0] << ' ' << dr3[1] << ' ' << dr3[2] << endl;
-  //  cout << dr4[0] << ' ' << dr4[1] << ' ' << dr4[2] << endl;
-  //  cout << dr6[0] << ' ' << dr6[1] << ' ' << dr6[2] << endl;
-  l2 = true;  
 }
 
 void node::pre_collapse(){
 /*Uses interpolators to progress one timestep.*/
 
-  double trh_old = trh();                     //temporary relaxation time store
-
   l1 = l2 = l3 = l4 = l5 = true;
   tstep = params.frac*trh();
   t += tstep;
+  cout << t << endl;
   precc_evolve(trial);
   N = trial[0]; r = trial[1]; mm = trial[2];
+  trh_old = trh();                           //Stores previous relaxation time
   n_relax += (2.0*tstep)/(trh_old+trh());    //Count of elapsed trh
-}
 
-void node::end_collapse(){
-
-  t = collapse_time;
-  y[0] = N;                //Sets for further evolution
-  y[1] = r;
-  y[2] = mm;
-  y[3] = n_relax;
+  trial[0] = y[0] = Nstart = N;                //Sets for further evolution
+  trial[1] = y[1] = r;
+  trial[2] = y[2] = mm;
+  trial[3] = y[3] = n_relax;
 }   
    
 double node::exp_get_c(int i){
@@ -108,7 +100,6 @@ double node::poly_get_b(int i){
 }
 
 void node::precc_evolve(double out[]){
-  
   for (int i = 0 ; i < 3 ; i++) {
     if ( dr6[i] == 1 ) out[i] = (dr3[i]*pow(t,3))+(dr4[i]*pow(t,2))+y[i];
     else out[i] = y[i]*exp(dr3[i]*pow((double)t,(double)dr4[i]));

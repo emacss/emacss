@@ -2,6 +2,71 @@
 //Output functions of EMACSS
 #include "emacss.h"
 
+void node::output_time(double t_Myr){
+/*Evolves cluster until an output time, t_out = t_n, where evolution is paused and the values output. Evolution may resume when next called, assuming t_n+1 > t_n. Throws an error if time has gone backward, or if N is too small for the assumptions upon which the model is based are valid!*/
+
+  if (init.f_N < 0){
+    cout << " t = " << t*T_star;
+    cout << " N = " << 0;
+    cout << " m = " << 0;
+    cout << " r = " << 0;
+    cout << " <m> = " << mm*M_star;
+    cout << " nrelax = " << 0;
+    cout << endl;	
+    exit(0);
+  }
+  
+  double t_out = t_Myr/T_star;
+  bool complete = false;           //Logic value - has t been reached?
+  double tmp_frac = params.frac;    //Backs up relaxation time fraction.
+
+  while (!complete && N > 100){ 
+    if (t_out > 0 && t_out < t+params.frac*trh()){ //If will achieve ouput time
+      params.frac = (t_out-t) / trh();
+      if (t+params.frac*trh() < collapse_time) pre_collapse(); //All pre cc
+      else if (t > collapse_time-1) evolve();            //All post cc
+      else{
+	params.frac = (collapse_time-t) / trh();         //Neither
+	pre_collapse();
+	end_collapse();
+	params.frac = (t_out-t) / trh();
+	evolve();
+      }
+      params.frac = tmp_frac;
+      complete = true;
+    }
+    else if (t+params.frac*trh() < collapse_time-1.0) {
+      pre_collapse();
+    }
+    else if (t > collapse_time-0.99) {
+      evolve();
+    }
+    else{
+      params.frac = (collapse_time-t) / trh();            //Completes cc 
+      pre_collapse();
+      end_collapse();
+      params.frac = tmp_frac;
+    }
+    if (t_out == 0)
+      output();
+  }
+  if (N < 99){
+    t = t_out;
+    N = 0;
+    r = 0;
+    mm = 0;
+  }
+  if (t_out > 0){
+    cout << " t = " << t*T_star;
+    cout << " N = " << static_cast<int>(N);
+    cout << " m = " << N*mm*M_star;
+    cout << " r = " << r*R_star;
+    cout << " <m> = " << mm*M_star;
+    cout << " nrelax = " << n_relax;
+    cout << endl;	
+  }
+}
+
 void node::output(){
   if (first) {
     /* Sets initial output properties - prints to cerr so output can be 
@@ -23,7 +88,7 @@ void node::output(){
     if (init.units == 1) cerr <<setprecision(3)<<init.r0<<'\t';
     cerr <<setprecision(3)<<init.r0*0.77<<'\t';
     cerr <<setprecision(3)<<rj<<'\t';
-    cerr <<setprecision(2)<<init.galaxy.M/init.mm0<<'\t';
+    cerr <<setprecision(2)<<init.galaxy.M<<'\t';
     cerr <<setprecision(5)<<init.galaxy.R<<'\t';
     cerr <<setprecision(2)<<init.mm0<<'\t';
     cerr <<setprecision(3)<<init.f_N<<'\t';
