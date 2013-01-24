@@ -18,85 +18,89 @@ using namespace std;
 /**************************************************************/
 
 /**************************************************************/
-/*Declares and the parameter classes*/
+/*Declares structuresand the parameter classes*/
+
+typedef struct{  //Time information - output, N-body, real, elapsed relaxation
+  double nbody, Myr;
+} t;
+
+typedef struct{  //Mass information - N-body, real
+  double nbody, Msun;
+} mass;
+
+typedef struct{  //Radius information - N-body, real
+  double nbody, pc;
+} radius;
+
+typedef struct{  //Radius information - N-body, real
+  double nbody, kms;
+} velocity;
+
+typedef struct{ //Energy information - output, steady state, generation, 
+  double epsilon, zeta, nbody, real;
+  int source;
+} energy;
 
 typedef struct{  //The properties defining the tidal field
-  double M, R, v;  
+  int type;
+  mass M; radius R; velocity v;
 } tidal_field;
 
-typedef struct{  //Fixed Parameters to describe the evolution
-  double xi0, rhrj1, gamma, N1, x, z, frac;
-} parameters;
+class stellar_evo;
+class dynamics;
 
-typedef struct{  //Cluster variables 
-  double N0, r0, mm0;                 //Initial properties
-  double f_N, f_r, f_mm;              //Pre-core collapse evoltuion
-  double zeta, rjrh, tcc;             //Other properties
-  double tout;                        //Output time (if wanted)
-  int units, s;                       //User unit choice, stellar evoltuiom.
-  bool s1,s2,s3;                      //Checks which variables are set by user.
-  tidal_field galaxy;
-} variables;
-
-class node{
-  bool first, virial;              //Checks output options
-  bool l1, l2, l3, l4, l5, l6;     //Lazy Evaluation flags
-  int interp, s;                   //Interpolation flag
-  double y[4], yerr[4];            //yerr not used unless error checking (rk5)
-  double dr1[4], dr2[4],dr3[4],dr4[4],dr5[4],dr6[4],trial[4];
-  double Nstart, tstep, collapse_time, M_gal, R_gal, trh_old;
-  double G_star, T_star, M_star, R_star;
-  double P();
-  double xi();
-  double sigma();	
-  double mu();
-  double dNdt();
-  double drdt();
-  double dmmdt();
-  double dtrhdt();
-  void set_units();
-  void rk4();
-  void solve_diffs(double[]);
-  double exp_get_c(int);
-  double exp_get_b(int);
-  double poly_get_a(int);
-  double poly_get_b(int);
-  void pre_collapse();
-  void precc_evolve(double[]);
-  void check_post_collapse_state(float);
-  void end_collapse();
-  variables init;
-  parameters params;
+class node{                       //Binding of cluster paramters at given time
+  void zero();
+  void initialise();
+  void solve_odes(double[],stellar_evo,dynamics);
+  void convert();
+  double E_calc(), trh(), r_jacobi();                      //Calculated factors
+  tidal_field galaxy            ;                          //Galaxy conditions
+  double G_star, M_star, R_star, T_star;                   //Conversion factors
+  double frac, tstep, R;         //Timesteps, input
+  double *nbody[10], *real[10];  //Data arrays
  public:
   node();
-  double t, N, r, mm, zeta, n_relax;
-  void initialise(parameters,variables);
-  double trh();
-  double r_jacobi();
-  double energy();
-  void prepare_interpolators();
-  void core_collapse();
-  void evolve();
-  void output_time(double);
+  double gamma; 
+  int s, units;
+  void input(int, char*[]);
+  void evolve(stellar_evo,dynamics);
   void output();
+  t time, out_time, t_relax;
+  energy E;
+  double N, kappa, trhelapsed;
+  mass M_total, DM_SE;
+  radius r, rj;
 };
-/*************************************************************/
 
-/*************************************************************/
-/*Input functions declarations*/
-void readinput(variables *, parameters *, int, char*[]);
-void readfile(char[],variables *);
-void zero(variables *);
-void set_cluster(variables *);
-void set_galaxy(variables *);
-void early_evolution(variables *, float);
-void galaxy_r(variables *);
-void galaxy_rhrj(variables *);
-void galaxy_vel(variables *);
-void galaxy_all(variables *);
-double r_j(variables *);
-double trh(variables *);
-void get_params(parameters *);
+/*The following is the stellar evolution module - models stellar effects*/
+class stellar_evo{
+  double y[];
+  node *mynode;
+ public:
+  stellar_evo(node*);
+  double nu, T_SE, X;              //defining characters (set at intit)
+  void set_X();
+  double dEdt(), dmsedt();
+  double epsilon(), gamma_se(); 
+};
+
+/*The following is the dynamics module - models pure dynamical effects*/
+class dynamics{
+  double P();
+  double y[];
+  node *mynode;
+  stellar_evo *myse;
+ public:
+  dynamics(node*,stellar_evo*);
+  double R1, N1, x, z, xi0, T_DYN, a, F;   //defining characters (set at intit)
+  void set_tcc();
+  double dNdt(), dMdt(), drdt(), dkdt(), dtrhdt();
+  double xi(), gamma_dyn(), mu(), lambda();
+};
+
+/**************************************************************/
+/*Non-physical function calls (i.e., program tidying, help file etc.)*/
 void help();
 void version();
-/*************************************************************/
+/**************************************************************/
