@@ -9,7 +9,7 @@ void get_params(parameters *params){
 
   params->xi0 = 0.0142;
   params->rhrj1 = 0.145;
-  params->gamma = 0.11;
+  params->gamma = 0.02;
   params->N1 = 38252;
   params->x = 0.75;
   params->z = 1.61;
