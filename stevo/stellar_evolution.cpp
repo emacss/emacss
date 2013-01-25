@@ -24,20 +24,21 @@ double stellar_evo::dEdt(){
 //Dynamical SE Parameter Equations (AGLB2013, s?)
 
 double stellar_evo::epsilon(){                           //Equation (?) AGLB2013
-  double epsilon = mynode->E.zeta;
-  if (mynode->s != 0){
-      epsilon = (2.0+X)*gamma_se();
-      if (epsilon < mynode->E.zeta && mynode->time.Myr > T_SE) 
-		epsilon = mynode->E.zeta;
+  double epsilon = 0;
+  mynode->E.source = 0;        //No energy generation
+  epsilon = (2.0+X)*gamma_se();
+  if (epsilon < mynode->E.zeta && mynode->time.Myr > T_SE){
+     mynode->E.source = 2;
+     epsilon = mynode->E.zeta;
   }
   return epsilon;
 }
 
 double stellar_evo::gamma_se(){                          //Equation (?) AGLB2013
   double gamma = 0;
-  if (mynode->s != 0){
-      if (mynode->time.Myr > T_SE) 
-	  gamma = (nu*mynode->t_relax.nbody)/mynode->time.nbody;
+  if (mynode->s != 0 && mynode->time.Myr > T_SE){
+      gamma += (nu*mynode->t_relax.nbody)/mynode->time.nbody;
+      mynode->E.source=1;
   }
   return gamma;
 }

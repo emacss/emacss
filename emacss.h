@@ -3,13 +3,12 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
-#include <vector>
 #include <cmath>
 #include <string>
 #include <sstream>
 #include <cstring>
 #include <cmath>
-#include <new>
+#include <limits>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -37,7 +36,7 @@ typedef struct{  //Radius information - N-body, real
 } velocity;
 
 typedef struct{ //Energy information - output, steady state, generation, 
-  double epsilon, zeta, nbody, real;
+  double zeta, nbody, real;
   int source;
 } energy;
 
@@ -60,16 +59,16 @@ class node{                       //Binding of cluster paramters at given time
   double frac, tstep, R;         //Timesteps, input
   double *nbody[10], *real[10];  //Data arrays
  public:
-  node();
+  node();lambda calclambda calculus pythonulus python
   double gamma; 
   int s, units;
   void input(int, char*[]);
   void evolve(stellar_evo,dynamics);
-  void output();
+  void output(stellar_evo,dynamics);
   t time, out_time, t_relax;
   energy E;
   double N, kappa, trhelapsed;
-  mass M_total, DM_SE;
+  mass mm, DM_SE;
   radius r, rj;
 };
 
@@ -95,7 +94,7 @@ class dynamics{
   dynamics(node*,stellar_evo*);
   double R1, N1, x, z, xi0, T_DYN, a, F;   //defining characters (set at intit)
   void set_tcc();
-  double dNdt(), dMdt(), drdt(), dkdt(), dtrhdt();
+  double dNdt(), dmmdt(), drdt(), dkdt(), dtrhdt();
   double xi(), gamma_dyn(), mu(), lambda();
 };
 

@@ -40,9 +40,12 @@ int main(int argc, char* argv[]){
   se_module.set_X();
   dynamics_module.set_tcc();
   
-  while (cluster.N > 200 && cluster.time.nbody < cluster.out_time.nbody){
+  //Writes initial conditions and t=0 output.
+  cluster.output(se_module,dynamics_module); 
+  
+  while (cluster.N > 100 && cluster.time.nbody < cluster.out_time.nbody){
     cluster.evolve(se_module,dynamics_module);	
-    cluster.output();
+    cluster.output(se_module,dynamics_module);
   }
   return 0;
 }

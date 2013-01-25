@@ -13,9 +13,10 @@ double dynamics::dNdt(){
   return dNdt;
 }
 
-double dynamics::dMdt(){
+double dynamics::dmmdt(){
   double dMdt = 0;
-  dMdt -= ((gamma_dyn()+xi())*mynode->M_total.nbody)/mynode->t_relax.nbody;
+  dMdt -= ((gamma_dyn()+myse->gamma_se())*mynode->mm.nbody)/
+	mynode->t_relax.nbody;
   return dMdt;
 }
 
@@ -40,16 +41,19 @@ double dynamics::dtrhdt(){
 //Dynamical Dimensionless Parameter Equations (see AG2012, s2.2 & AGLB2013, s?)
 
 double dynamics::xi(){                           //Equation (26) AG2012	
-  double xi = 0;
-  double tidal = (3.0/5.0)*mynode->E.zeta;
-  double iso = xi0;
+  double xi = 0, tidal = 0, iso = 0;
+  if (mynode->time.nbody > T_DYN) {
+      tidal = (3.0/5.0)*mynode->E.zeta;
+      iso = xi0;
+  }
   return tidal*P()+iso*(1.0-P());
 }
 
 double dynamics::gamma_dyn(){                   //Equation (??) AGL2013
   double gamma = 0;
-  if (y[0] > T_DYN) gamma = a*xi()/(1.0+((mynode->N*(1.0-mynode->DM_SE.nbody))
-	/(F*mynode->M_total.nbody*mynode->r.nbody)));
+  if (mynode->time.nbody > T_DYN) 
+      gamma -= a*xi()/(1.0+((1.0-mynode->DM_SE.nbody)/
+		(F*mynode->N*mynode->mm.nbody)));
   return gamma;
 }
 

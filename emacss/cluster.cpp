@@ -4,20 +4,20 @@
 #include "../emacss.h"
 
 double node::E_calc(){                                //Equation (1) AG2012
-  return -0.25*pow(M_total.nbody,2)/r.nbody;
+  return -0.25*pow(N*mm.nbody,2)/r.nbody;
 }
 
 double node::r_jacobi(){                            //Equation (18) AG2012
   double rj = 0;
   if (galaxy.type == 0)
-	rj = pow((M_total.nbody)/(3.0*galaxy.M.nbody),(1.0/3.0))*galaxy.R.nbody;
+	rj = pow((N*mm.nbody)/(3.0*galaxy.M.nbody),(1.0/3.0))*galaxy.R.nbody;
   else if (galaxy.type == 1)
-	rj = pow((M_total.nbody)/(2.0*galaxy.M.nbody),(1.0/3.0))*galaxy.R.nbody;
+	rj = pow((N*mm.nbody)/(2.0*galaxy.M.nbody),(1.0/3.0))*galaxy.R.nbody;
   return rj;
 }
 
 double node::trh(){                                  //Equation (4) AG2012
-return 0.138*N*sqrt(pow(r.nbody,3)/(M_total.nbody))/(log(gamma*N));
+return 0.138*sqrt(N*pow(r.nbody,3)/(mm.nbody))/(log(gamma*N));
 }
 
 void node::evolve(stellar_evo se,dynamics dyn){
@@ -55,7 +55,7 @@ void node::solve_odes(double dvdt[],stellar_evo se,dynamics dyn){
     dvdt[0] = 1;
     dvdt[1] = 0;
     dvdt[2] = dyn.dNdt();
-    dvdt[3] = dyn.dMdt();
+    dvdt[3] = dyn.dmmdt();
     dvdt[4] = dyn.drdt();
     dvdt[5] = 0;
     dvdt[6] = 0;
