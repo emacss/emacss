@@ -326,7 +326,7 @@ class output_tests:
               self.NFAIL += 1
               print "Specified output time bounds error"
 
-class em_tests:
+class equal_mass_tests:
     NTESTS = 0                     #Total number of tests
     NSUCCESS = 0                   #NUmber of successes
     NFAIL = 0                      #Number of failures
