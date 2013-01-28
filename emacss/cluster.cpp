@@ -28,7 +28,7 @@ void node::evolve(stellar_evo se,dynamics dyn){
   tstep = 1.0/(1.0/(frac*t_relax.nbody)+1.0/(frac*time.nbody/se.nu));
   if (tstep ==0 ) tstep = 0.1;       //incase t = 0
   
-  for (int i=0;i<9;i++) duplicate_nbody[i] = *nbody[i]; //Backup
+  for (int i=0;i<10;i++) duplicate_nbody[i] = *nbody[i]; //Backup
   
   solve_odes(dr1,se,dyn);
   convert();
@@ -44,7 +44,6 @@ void node::evolve(stellar_evo se,dynamics dyn){
   for (int i=0;i<10;i++) 
   *nbody[i]=duplicate_nbody[i]+(tstep/6.0)*(dr1[i]+2.0*dr2[i]+2.0*dr3[i]+dr4[i]);
   convert(); 
-  
   
 }
 

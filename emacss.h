@@ -59,8 +59,8 @@ class node{                       //Binding of cluster paramters at given time
   double frac, tstep, R;         //Timesteps, input
   double *nbody[10], *real[10];  //Data arrays
  public:
-  node();lambda calclambda calculus pythonulus python
-  double gamma; 
+  node();
+  double gamma, rhrj; 
   int s, units;
   void input(int, char*[]);
   void evolve(stellar_evo,dynamics);

@@ -31,10 +31,10 @@
 int main(int argc, char* argv[]){
 
   node cluster;
+  cluster.input(argc,argv);
+  
   stellar_evo se_module(&cluster);
   dynamics dynamics_module(&cluster,&se_module);
-  
-  cluster.input(argc,argv);
   
   //Sets adiabatic expansion term and core collapse time for dynamics
   se_module.set_X();

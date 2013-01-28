@@ -9,7 +9,7 @@ void stellar_evo::set_X(){
 
 double stellar_evo::dmsedt(){                            //Equation (?) AGLB2013
   double dmsedt = 0;
-  dmsedt = -(gamma_se()*mynode->DM_SE.nbody)/mynode->t_relax.nbody;            
+  dmsedt = -(gamma_se()*mynode->DM_SE.nbody)/pow(mynode->t_relax.nbody,2);            
   return dmsedt;
 }
 

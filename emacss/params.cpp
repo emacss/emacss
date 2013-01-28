@@ -25,9 +25,12 @@ dynamics::dynamics(node *innode, stellar_evo *inse) : mynode(innode),
   N1 = 38252;
   x = 0.75;
   z = 1.61;
-  xi0 = 0;
-  T_DYN = 0.2;
-  a = 0.255;
-  F = 0.245;
+
+  if (mynode->s == 1) {
+      a = 0.255; F = 0.245; xi0 = 0; T_DYN = 0.2;
+  }
+  else {
+      a = 0; F = 1; xi0 = 0.0142; T_DYN = 0;
+  }
 
 }
