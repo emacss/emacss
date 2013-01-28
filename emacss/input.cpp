@@ -20,18 +20,34 @@ void node::input(int argc, char* argv[]){
     switch (c){
     case ('N'):                              //N bodies
       value = optarg;
+      if (atof(value) < 100 || atof(value) > 1e6){
+	  cerr << "N out of valid range (100-1000000)" << endl;
+	  exit(1);
+      }
       N = atof(value);
       break;
     case ('r'):                              //r at time=0
       value = optarg;
+      if (atof(value) < 0 || atof(value) > 25){
+	  cerr << "r out of valid range (0-25pc)" << endl;
+	  exit(1);
+      }
       r.pc = atof(value);
       break;
     case ('R'):                              //Filling Factor
       value = optarg;
+      if (atof(value) < 0 || atof(value) > 1){	
+	  cerr << "Filling factor not in range 0-1" << endl;
+	  exit(1);
+      }
       rhrj = atof(value);
       break;
     case ('m'):                              //Mean mass at time=0
       value = optarg;
+      if (atof(value) < 0 || atof(value) > 2){	
+	  cerr << "Stellar Mass not in range 0-2" << endl;
+	  exit(1);
+      }
       mm.Msun = atof(value);
       break;
     case ('t'):                              //output time
@@ -40,30 +56,54 @@ void node::input(int argc, char* argv[]){
       break;  
     case ('g'):                              //galaxy halo type flag
       value = optarg;
+      if (atoi(value) < 0 || atoi(value) > 1){
+	  cerr << "Galaxy Type Invalid" << endl;
+	  exit(1);
+      }
       galaxy.type = atoi(value);
       break;  
     case ('M'):                              //Galaxy Mass (contained)
       value = optarg;
+      if (atof(value) < 0){	
+	  cerr << "Galaxy mass negative" << endl;
+	  exit(1);
+      }
       galaxy.M.Msun = atof(value);
       break;
     case ('d'):                              //distance from galaxy CoM (/1000)
       value = optarg;
-      galaxy.R.pc = atof(value)*1000;        //1000 - input in kpc
+      galaxy.R.pc = fabs(atof(value)*1000);  //1000 - input in kpc
       break;  
     case ('v'):                              //Cluster orbital velocity (kms^-2)
       value = optarg;
-      galaxy.v.kms = atof(value);
+      if (fabs(atof(value)) > 2000){	
+	  cerr << "Orbital velocity high..." << endl;
+	  exit(1);
+      }
+      galaxy.v.kms = fabs(atof(value));
       break;
     case ('o'):                              //Output setting (Unit output)
       value = optarg;
+      if (atoi(value) < 0 || atoi(value) > 2){
+	  cerr << "Output flag: 0 = N-body, 1 = Real, 2 = Both" << endl;
+	  exit(1);
+      }
       units = atoi(value);
       break;
     case ('s'):                              //Stellar Evolution on/off
       value = optarg;
+      if (atoi(value) < 0 || atoi(value) > 1){
+	  cerr << "Stellar Evolution flag: 1 = Real units, 0 = N-body" << endl;
+	  exit(1);
+      }
       s = atoi(value);
       break; 
     case ('z'):                              //adjustable zeta (mass function)
       value = optarg;
+      if (atof(value) < 0 || atof(value) > 1){
+	  cerr << "zeta negative or greater than 1" << endl;
+	  exit(1);
+      }
       E.zeta = atof(value);
       break;   
     }
@@ -116,7 +156,7 @@ void node::initialise(){
   else{
     cerr << "Insufficient galaxy data supplied. Assuming MW-like" << endl;
     galaxy.v.kms = 220;
-//    galaxy.R.pc = 8500;
+    galaxy.R.pc = 8500;
     galaxy.M.Msun = (pow(galaxy.v.kms,2)*galaxy.R.pc)/G;
   }
   

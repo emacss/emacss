@@ -34,6 +34,7 @@ void node::output(stellar_evo se,dynamics dyn){
 	cerr << "Galaxy Conditions:" << endl;	
 	cerr << "RG = " <<setprecision(3)<<galaxy.R.pc/1e3<< " [kpc]  ";
 	cerr << "vG = " <<setprecision(3)<<galaxy.v.kms<< " [kms]  ";
+	cerr << "MG = " <<setprecision(3)<<galaxy.M.Msun<< " [M_sun]  ";
 	cerr << "type = " <<galaxy.type<< endl;
 
     	cerr << "Other parameters:" << endl;
@@ -64,7 +65,7 @@ void node::output(stellar_evo se,dynamics dyn){
 		  t_relax.Myr,trhelapsed,E.real,E.source,se.epsilon());
 	}
 	if (units != 1){
-	    printf("#1n %8.5e\t%8.5e\t%8.5e\t%8.5e\t%8.5e\t%8.5e\n",
+	    printf("#1n %8.5e\t%8.5e\t%8.5e\t%8.5e\t%8.5e\n",
 		  time.nbody,N,N*mm.nbody,r.nbody,rj.nbody);
     	    printf("#2n %8.5e\t%8.5e\t%8.5e\t%1d\t\t%8.5e\n",
 		  t_relax.nbody,trhelapsed,E.nbody,E.source,se.epsilon());
