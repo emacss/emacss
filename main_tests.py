@@ -430,8 +430,8 @@ class equal_mass_tests:
  #         print abs(M(v1t)/v1M-1) < 0.004
 
         try:                                          #Checks r reproduced accurately
-          for i in range(10):
-              print v1r[i], r([v1t[i]])[0], abs(r(v1t[i])/v1r[i]-1) < 0.0025
+#          for i in range(10):
+#              print v1r[i], r([v1t[i]])[0], abs(r(v1t[i])/v1r[i]-1) < 0.0025
           assert all(abs(r(v1t)/v1r-1) < 0.0025)
           self.NSUCCESS += 1    
         except AssertionError:
