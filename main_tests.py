@@ -500,24 +500,24 @@ def main():
         print "Using default name of executable file: emacss_dev "
         f = "./emacss_dev"
 
-#    bounds = boundaries_tests(f)
-#    bounds.test_N()
-#    bounds.test_r()
-#    bounds.test_galaxy()
-#    bounds.test_zeta()
-#    bounds.test_meta()   
-#    del bounds
+    bounds = boundaries_tests(f)
+    bounds.test_N()
+    bounds.test_r()
+    bounds.test_galaxy()
+    bounds.test_zeta()
+    bounds.test_meta()   
+    del bounds
 
-#    input = input_tests(f)
-#    input.test_initialise()
-#    input.test_conversion()
-#    input.test_calculated_parameters()
-#    del input
+    input = input_tests(f)
+    input.test_initialise()
+    input.test_conversion()
+    input.test_calculated_parameters()
+    del input
 
-#    output = output_tests(f)      #Only ensures time selected outputs are accurate - others are implicit
-#    output.test_time()
-#    output.test_fail()
-#    del output
+    output = output_tests(f)      #Only ensures time selected outputs are accurate - others are implicit
+    output.test_time()
+    output.test_fail()
+    del output
 
     em = equal_mass_tests(f)      
     em.high_mass_high_R()
