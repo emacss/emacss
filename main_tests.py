@@ -13,7 +13,11 @@ validate EMACSS by confirming the results generated confirm to known values. We 
 Script written 25/01/13 by P. Alexander.
 '''
 
-import re, sys, subprocess as sp, numpy as np
+import sys, re
+import subprocess as sp
+import numpy as np
+import pyfits as pf
+from scipy.interpolate import interp1d
 
 class boundaries_tests:
     NTESTS = 0                     #Total number of tests
@@ -166,14 +170,17 @@ class input_tests:
         cluster =  A[6].split()
         galaxy =  A[10].split()
 
-        if cluster[3] == "65536" and cluster[6] == "0.547" and cluster[10] == "1" and cluster[-1] == "0.15":
+        try:
+          assert cluster[3] == "65536" and cluster[6] == "0.547" and cluster[10] == "1" \
+              and cluster[-1] == "0.15"
           self.NSUCCESS += 1
-        else:
+        except AssertionError:
           self.NFAIL += 1
           print "Cluster Initialisation Error"
-        if galaxy[2] == "8.5" and galaxy[6] == "220" and galaxy[14] == "0":
+        try:
+          assert galaxy[2] == "8.5" and galaxy[6] == "220" and galaxy[14] == "0"
           self.NSUCCESS += 1
-        else:
+        except AssertionError:
           self.NFAIL += 1
           print "Galaxy Initialisation Error"
 
@@ -183,14 +190,17 @@ class input_tests:
         cluster = A[6].split()
         galaxy = A[10].split()
 
-        if cluster[3] == "32768" and cluster[6] == "0.663" and cluster[10] == "0.1" and cluster[-1] == "0.111":
+        try:
+          assert cluster[3] == "32768" and cluster[6] == "0.663" and cluster[10] == "0.1" \
+              and cluster[-1] == "0.111"
           self.NSUCCESS += 1
-        else:
+        except AssertionError:
           self.NFAIL += 1
           print "Cluster Initialisation Error"
-        if galaxy[2] == "10" and galaxy[6] == "200" and galaxy[14] == "0":
+        try:
+          assert galaxy[2] == "10" and galaxy[6] == "200" and galaxy[14] == "0"
           self.NSUCCESS += 1
-        else:
+        except AssertionError:
           self.NFAIL += 1
           print "Galaxy Initialisation Error"
 
@@ -203,27 +213,29 @@ class input_tests:
         factors =  A[9].split()
         sample1 =  A[140].split()
         sample2 =  A[142].split()
-        if (float(sample1[1]) > float(sample2[1])*float(factors[11])*0.999 \
-             and float(sample1[1]) < float(sample2[1])*float(factors[11])*1.001):
+        try:
+          assert abs(float(sample1[1])/(float(sample2[1])*float(factors[11]))-1) < 0.002
           self.NSUCCESS += 1
-        else:
+        except AssertionError:
           self.NFAIL += 1
           print "Time Conversion Error"
-        if (float(sample1[2]) > float(sample2[2])*0.999 and float(sample1[2]) < float(sample2[2])*1.001):
+        try:
+          assert abs(float(sample1[2])/float(sample2[2])-1) < 0.002
           self.NSUCCESS += 1
-        else:
+        except AssertionError:
           self.NFAIL += 1
+          print abs(float(sample1[2])/float(sample2[2]))
           print "N not consisitent between outputs"
-        if (float(sample1[3]) > float(sample2[3])*float(factors[5])*0.999 \
-             and float(sample1[3]) < float(sample2[3])*float(factors[5])*1.001):
+        try:
+          assert abs(float(sample1[3])/(float(sample2[3])*float(factors[5]))-1) < 0.002
           self.NSUCCESS += 1
-        else:
+        except AssertionError:
           self.NFAIL += 1
           print "Mass Conversion Error"
-        if (float(sample1[5]) > float(sample2[5])*float(factors[8])*0.999 \
-             and float(sample1[5]) < float(sample2[5])*float(factors[8])*1.001):
+        try:
+          assert abs(float(sample1[5])/(float(sample2[5])*float(factors[8]))-1) < 0.002
           self.NSUCCESS += 1
-        else:
+        except AssertionError:
           self.NFAIL += 1
           print "Radius Conversion Error"
 
@@ -234,27 +246,31 @@ class input_tests:
 
         A = sp.check_output([self.exe,"-N","65536","-r","1","-m","0.547","-v","220","-d","8.5","-z 0.15"]
                             ,stderr=sp.STDOUT).split('\n')
-        galaxy = A[10].split()
-        if float(galaxy[10]) > 0.99*9.564e10 and float(galaxy[10]) < 1.01*9.564e10:
-            self.NSUCCESS += 1
-        else:
+        try:
+          galaxy = A[10].split()
+          assert abs(float(galaxy[10])/9.564e10-1.0) < 0.01
+          self.NSUCCESS += 1
+        except AssertionError, IndexError:
           self.NFAIL += 1
           print "Galaxy Mass Calculation Error", float(galaxy[10]),0.999*9.564e10
 
         A = sp.check_output([self.exe,"-N","65536","-r","1","-m","0.547","-M","9.564e10","-d","8.5","-z 0.15"]
                             ,stderr=sp.STDOUT).split('\n')
-        galaxy = A[10].split()
-        if float(galaxy[2]) > 0.99*8.5 and float(galaxy[2]) < 1.01*8.5:
-            self.NSUCCESS += 1
-        else:
+        try:
+          galaxy = A[10].split()
+          assert (float(galaxy[2])/8.5-1.0) < 0.01
+          self.NSUCCESS += 1
+        except AssertionError, IndexError:
           self.NFAIL += 1
           print "Galactocentric radius Calculation Error"
 
         A = sp.check_output([self.exe,"-N","65536","-r","1","-m","0.547","-v","220","-M","9.564e10","-z 0.15"]
                             ,stderr=sp.STDOUT).split('\n')
-        if float(galaxy[6]) > 0.99*220 and float(galaxy[6]) < 1.01*220:
-            self.NSUCCESS += 1
-        else:
+        try:
+          galaxy = A[10].split()
+          assert abs(float(galaxy[6])/220-1.0) < 0.01
+          self.NSUCCESS += 1
+        except AssertionError, IndexError:
           self.NFAIL += 1
           print "Orbital Velocity Calculation Error"
 
@@ -263,33 +279,39 @@ class input_tests:
                             ,stderr=sp.STDOUT).split('\n')
         rj = ((G*N*mm*(RG*1e3)**2)/(3.0*vG**2))**(1.0/3.0)      #Calculates exactly
         trh = 0.138*np.sqrt((N*r**3)/(G*mm))*(1/np.log(0.02*N))
-        rj_calc =  float(A[17].split()[-1])
-        trh_calc =  float(A[18].split()[1])
+        try:
+          rj_calc =  float(A[17].split()[-1])
+          trh_calc =  float(A[18].split()[1])
+        except IndexError:
+          print "Output format Error - result(s):"
 
-        if rj_calc > 0.999*rj and rj_calc < 1.001*rj:
-            self.NSUCCESS += 1
-        else:
+        try:
+          assert abs(rj_calc/rj - 1) < 0.001
+          self.NSUCCESS += 1
+        except AssertionError:
           self.NFAIL += 1
           print "Jacbi Radius Calculation Error"
 
-        if trh_calc > 0.999*trh and trh_calc < 1.001*trh:
-            self.NSUCCESS += 1
-        else:
+        try:
+          assert abs(trh_calc/trh) < 0.001
+          self.NSUCCESS += 1
+        except AssertionError:
           self.NFAIL += 1
           print "Relaxation Time Calculation Error"
 
         A = sp.check_output([self.exe,"-N",str(N),"-R","0.01","-m",str(mm),"-v",str(vg),"-d",str(RG),"-z 0.15"]
                             ,stderr=sp.STDOUT).split('\n')
         cluster =  A[6].split()
-        if float(cluster[10]) > 0.999*rj*0.01 and float(cluster[10]) < 1.001*rj*0.01:
+        try:
+          assert abs(float(cluster[10])/(rj*0.01)-1)< 0.001
           self.NSUCCESS += 1
-        else:
+        except AssertionError:
           self.NFAIL += 1
           print "Filling Factor definition error"
 
 class output_tests:
     NTESTS = 0                     #Total number of tests
-    NSUCCESS = 0                   #NUmber of successes
+    NSUCCESS = 0                   #Number of successes
     NFAIL = 0                      #Number of failures
 
     def __init__(self,f):
@@ -307,40 +329,139 @@ class output_tests:
         self.NTESTS +=2
         times = 10,100
         for time in times:
-          A = sp.check_output([self.exe,"-t",str(time),"-N","1e5"],stderr=sp.STDOUT).split('\n')[19].split()
-          if float(A[1]) > time and float(A[1]) < time*1.01:
-              self.NSUCCESS += 1
-          else:
-              self.NFAIL += 1
-              print "Specified output time error"
+          try:
+            A = sp.check_output([self.exe,"-t",str(time),"-N","1e5"],stderr=sp.STDOUT).split('\n')[19].split()
+            assert float(A[1]) > time 
+            assert float(A[1]) < time*1.01
+            self.NSUCCESS += 1
+          except AssertionError, IndexError:
+            self.NFAIL += 1
+            print "Specified output time error"
 
     def test_fail(self):
         
         self.NTESTS +=2
         times = 10,100
         for time in times:
-          A = sp.check_output([self.exe,"-t",str(time),"-N","8192"],stderr=sp.STDOUT).split('\n')[19].split()
-          if float(A[2]) < 1:
-              self.NSUCCESS += 1
-          else:
-              self.NFAIL += 1
-              print "Specified output time bounds error"
+          try:
+            A = sp.check_output([self.exe,"-t",str(time),"-N","8192"],stderr=sp.STDOUT).split('\n')[19].split()
+            assert float(A[2]) < 1
+            self.NSUCCESS += 1
+          except AssertionError, IndexError:
+            self.NFAIL += 1
+            print "Specified output time bounds error"
 
 class equal_mass_tests:
     NTESTS = 0                     #Total number of tests
-    NSUCCESS = 0                   #NUmber of successes
+    NSUCCESS = 0                   #Number of successes
     NFAIL = 0                      #Number of failures
 
     def __init__(self,f):
         print "Initialising Equal Mass Evolution Tests..."
         self.exe = f
 
+        hdulist = pf.open('test_data/equal_mass.fits')     #Accesses the fits file of test data
+        self.lNhR = hdulist[0].data[0], hdulist[1].data
+        self.lNlR = hdulist[0].data[1], hdulist[2].data
+        self.hNhR = hdulist[0].data[2], hdulist[3].data
+        self.hNlR = hdulist[0].data[3], hdulist[4].data
+        
     def __del__(self):
         self.NSUCCESS += 1e-10; self.NFAIL += 1e-10; self.NTESTS += 1e-10
         print "Tests completed."
         print "%i"%self.NSUCCESS,"of %i"%self.NTESTS,"sucessful (%.0f" %(100*(self.NSUCCESS/self.NTESTS)),"%)"
         print "%i"%self.NFAIL,"of %i"%self.NTESTS,"failed (%.0f" %(100*(self.NFAIL/self.NTESTS)),"%)"
-              
+
+    def sim(self,N0,R):
+        '''Runs the simualtion for N and R, and returns interpolator obejcts for evaluation'''
+
+        A = sp.check_output([self.exe,"-N",str(N0),"-R",str(R),"-M","1e10","-z 0.111","-s","0","-o","0"]
+                            ,stderr=sp.STDOUT).split('\n')
+
+        t = []; N = []; r = []; M = []
+        for line in A:
+          if re.search("#1n",line) and not re.search("t",line):
+            st = line.split()
+            t.append(float(st[1])); N.append(float(st[2]))
+            M.append(float(st[3])); r.append(float(st[4]))
+
+        return interp1d(t,N,fill_value=0,bounds_error=False), interp1d(t,M,fill_value=0,bounds_error=False),\
+            interp1d(t,r,fill_value=0,bounds_error=False)
+
+    def checks(self,N,M,r,v1t,v1N,v1M,v1r,conditions):
+
+        try:                                          #Checks N reproduced accurately
+          assert abs(N(v1t)/v1N-1).all < 0.01
+          self.NSUCCESS += 1    
+        except AssertionError:
+          self.NFAIL += 1    
+          print "N(t) not correctly reproduced from "+conditions+" initial conditions."
+
+        try:                                          #Checks M reproduced accurately
+          assert abs(M(v1t)/v1M-1).all < 0.01
+          self.NSUCCESS += 1    
+        except AssertionError:
+          self.NFAIL += 1    
+          print "M(t) not correctly reproduced from "+conditions+" initial conditions."
+
+        try:                                          #Checks r reproduced accurately
+          assert abs(r(v1t)/v1r-1).all < 0.01
+          self.NSUCCESS += 1    
+        except AssertionError:
+          self.NFAIL += 1    
+          print "r(t) not correctly reproduced from "+conditions+" initial conditions."
+            
+    def high_mass_high_R(self):
+
+        self.NTESTS += 3 
+        conditions = "high N, high R"
+
+        N = self.hNhR[0][0]; R = self.hNhR[0][1]      #Obtains initial conditions from fits file
+        N, M, r = self.sim(N,R)
+        v1t = self.hNhR[1].field(0)
+        v1N = self.hNhR[1].field(1)
+        v1M = self.hNhR[1].field(2)
+        v1r = self.hNhR[1].field(3)
+        self.checks(N,M,r,v1t,v1N,v1M,v1r,conditions)
+
+    def high_mass_low_R(self):
+
+        self.NTESTS += 3 
+        conditions = "high N, low R"
+
+        N = self.hNlR[0][0]; R = self.hNlR[0][1]      #Obtains initial conditions from fits file
+        N, M, r = self.sim(N,R)
+        v1t = self.hNlR[1].field(0)
+        v1N = self.hNlR[1].field(1)
+        v1M = self.hNlR[1].field(2)
+        v1r = self.hNlR[1].field(3)
+        self.checks(N,M,r,v1t,v1N,v1M,v1r,conditions)
+
+    def low_mass_high_R(self):
+
+        self.NTESTS += 3 
+        conditions = "low N, high R"
+
+        N = self.lNhR[0][0]; R = self.lNhR[0][1]      #Obtains initial conditions from fits file
+        N, M, r = self.sim(N,R)
+        v1t = self.lNhR[1].field(0)
+        v1N = self.lNhR[1].field(1)
+        v1M = self.lNhR[1].field(2)
+        v1r = self.lNhR[1].field(3)
+        self.checks(N,M,r,v1t,v1N,v1M,v1r,conditions)
+
+    def low_mass_low_R(self):
+
+        self.NTESTS += 3 
+        conditions = "low N, low R"
+
+        N = self.lNlR[0][0]; R = self.lNlR[0][1]      #Obtains initial conditions from fits file
+        N, M, r = self.sim(N,R)
+        v1t = self.lNlR[1].field(0)
+        v1N = self.lNlR[1].field(1)
+        v1M = self.lNlR[1].field(2)
+        v1r = self.lNlR[1].field(3)
+        self.checks(N,M,r,v1t,v1N,v1M,v1r,conditions)
 
 
 def main():
@@ -365,16 +486,16 @@ def main():
     input.test_calculated_parameters()
     del input
 
-    output = output_tests(f)             #Only ensures time selected outputs are accurate - others are implicit
+    output = output_tests(f)      #Only ensures time selected outputs are accurate - others are implicit
     output.test_time()
     output.test_fail()
     del output
 
-    em = equal_mass_tests(f)            #To complete
-#    em.high_mass_high_R()
-#    em.low_mass_high_R()
-#    em.high_mass_low_R()
-#    em.low_mass_low_R()
+    em = equal_mass_tests(f)      
+    em.high_mass_high_R()
+    em.low_mass_high_R()
+    em.high_mass_low_R()
+    em.low_mass_low_R()
     del em
     
 if __name__ == '__main__':
