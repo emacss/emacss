@@ -17,7 +17,7 @@ emacss_dev: $(EMACSS_OBJ) $(DYN_OBJ) $(SE_OBJ)
 clean:
 	rm *.o
  
-emacss.o: emacss/emacss.cpp
+emacss.o: emacss.cpp
 	$(CPP) -g -c $^ -o $@
 
 input.o: emacss/input.cpp

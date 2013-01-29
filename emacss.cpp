@@ -26,7 +26,7 @@
 // Equations referenced AGLB2013 refer to Alexander et al. 2013        //
 /***********************************************************************/
 
-#include "../emacss.h"
+#include "emacss.h"
 
 int main(int argc, char* argv[]){
 
