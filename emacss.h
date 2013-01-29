@@ -49,7 +49,6 @@ class stellar_evo;
 class dynamics;
 
 class node{                       //Binding of cluster paramters at given time
-  void zero();
   void initialise();
   void solve_odes(double[],stellar_evo,dynamics);
   void convert();
@@ -63,6 +62,7 @@ class node{                       //Binding of cluster paramters at given time
   double gamma, rhrj; 
   int s, units;
   void input(int, char*[]);
+  void zero();
   void evolve(stellar_evo,dynamics);
   void output(stellar_evo,dynamics);
   t time, out_time, t_relax;

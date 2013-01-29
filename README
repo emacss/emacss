@@ -1,57 +1,70 @@
-	 Evolve Me A Cluster of StarS (EMACSS) - version 1.04
+	 Evolve Me A Cluster of StarS (EMACSS) - version 2.10
 	 By: Poul Alexander (University of Cambridge)
- 	     Mark Gieles (University of Cambridge)
+ 	     Mark Gieles (University of Surrey)
+	     Henny Lamers (University of Amsterdam)
+	     Holger Baumgardt (University of Brisbane)
 
 	 EMACSS is a numerical integrator that solves for the
 	 differential equations:
 
-	  dN/dt = f(N,r,p) = - xi*N/t_rh
+	  dE/dt = f(N,r,p) = - epsilon*E/t_rh
 
-	  dr/dt = g(N,r,p) = mu*r/t_rh
+	  dN/dt = g(N,r,p) = - xi*N/t_rh
+
+	  dr/dt = h(N,r,p) = mu*r/t_rh
+
+	  dmm/dt = i(N,r,p) = (gamma_se+gamma_dyn)*mm/t_rh
 
 	 where 
+	 epsilon = max((2 + X)*gamma_se,zeta) 
 	 xi = f(N,r,rt)
-	 mu = zeta - 2*xi
+	 mu = epsilon - 2*xi - 2*gamma_se - 2*gamma_dyn
+	 gamma_se = nu*trh/t	 gamma_dyn = A*xi/(1+(1-DM_SE)/(F*N*mm))
 	 p is an array of variables defining the conditions at any given time.
 	 zeta defines the fractional flow of energy per half-mass
-	 relaxation time.
+	 relaxation time and stellar evolution.
 
-	 Full documentation is available in Alexander & Gieles 2012
+	 DM_SE is the mass lost due to stellar evoltuion only
+
+	 X, A and F are constants calibrated against N-body runs
+
+	 Full documentation is available in Alexander & Gieles 2012 and 
+	 in Alexander, Gieles, Lamers and Baumgardt 2013 (in prep) and 
 
 	 The options to specify a cluster (initial number of stars,
-	 half mass radius) can be specified with
-	 appropriate options (see below) 
+	 half mass radius) can be specified with appropriate options 
+	 (see below) 
 	 The output is printed directly onto the command line; we 
 	 therefore suggest piping this output into a file or plotting
 	 package.
 
 	 emacss [options] > [output]
 
+	 Although note that the output is formatted (see 'head' for the 
+	 format of output files. 
+
 	 Options:
 	 -help: Displays this file.
 	 -version: Displays the current version number and version log.
-	 -u: (Input) N-body or Real units. 
+	 -o: (Output) N-body or Real units. 
 		 0=N-body (see Heggie & Mathieu 1986)
 		 1=Real [parsec, solar masses, Myr] 
+		 2=Real and N-body alternating 
 	 -N: initial number of stars in cluster.
-	 -r: initial half-mass radius of cluster [pc if u = 1
-	     ignored if u = 0 ]
+	 -r: initial half-mass radius of cluster [ignored if u = 0 ]
 	 -m: mean mass of stars [solar masses].
-	 -t: Start of balanced evolution (default is 20trh0).
+	 -t: Output time (i.e., for single output after set time).
 	 -R: initial ratio of virial to Jacobi radius.
 	 -M: mass of point mass galaxy around which the cluster is
-	     in orbit.
+	     in orbit [M_sun].
 	 -d: distance to the point mass galaxy around which the cluster
-	     is in orbit [kpc if u = 1, krv (virial radius * 1000)
-	     otherwise].
+	     is in orbit [kpc].
 	 -v: Orbital velocity of cluster around galaxy. [km/s]
-	 -l: mass loss prior to core collapse.
-	 -x: expansion prior to core collapse.
-	 -e: change in mean mass prior to core collapse.
-	 -z: value for zeta (otherwise default, 0.111 (equal mass 
-	     clusters) is used).
-	 -f: Finish time. If specified will only output data at the 
-	     specified time.
+	 -z: value for zeta. Defaults:
+		 0.111-equal mass clusters, no stellar evolution.
+		 0.15-stellar evolution on, clusters assumed with Krouper 
+		 stellar IMF.
+	 -s: Stellar Evolution flag (0 = off, equal mass, 1 = on, IMF.
 
 	 Tidal field is specified first by MG and RG, if these are
 	 provided. If one or both are missing, the code will first 
@@ -59,16 +72,14 @@
 
 	 When options are not defined a default cluster is used with:
 	 N=1e5
-	 mm=0.5 M_sun
-	 r=3pc
+	 mm=0.547 M_sun
+	 r=1pc
 	 RG=8.5kpc
 	 vG=220kms^-2
 
-	 If used to represent clusters with mass functions, we
-	 recommend increasing zeta to ~0.2.
+	 If used to represent clusters of equal mass stars, the code
+	 is only accurate once balanced evolution has begun (no 
+	 core-collapse).
 
-	 Early evolution is not properly recovered by this 
-	 prescription- evolution prior to t_cc is found via exponential
-	 extrapolation, and is marked at output by a 1 in the final 
-	 column.
+	 Happy evolving!
 
