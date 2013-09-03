@@ -106,20 +106,18 @@ double dynamics::epsilon(){			//Equation (2) GALB2013
 
 double dynamics::mu(){				//Equation (19) GALB2013
   double mu = 0.0; 
-  double Rhj = 0.0;
-  
-  if (mynode->galaxy.type > 0) Rhj = mynode->rh/mynode->rj;
   
   if (mynode->E.source == 0){
       mu = K()*delta();                       //Increase due to shrinking core
-      mu += (Rhj/mynode->kappa - 2.0)*xi();   //Shrink due to removal of stars
+      mu += (mynode->Rhj/mynode->kappa - 2.0)*xi();//Shrink due to removal of stars
       mu /= (1.0 + K());// Correction because rh appears in expression for kappa
      }
 
    if (mynode->E.source == 1){
        mu = mynode->E.zeta - 2.0*xi();         // Make the balance (AG2012)
-       mu += 2./3.*K()*xi()/(1.0+mynode->N/N3);// Extra terms
+       mu += 2.0/3.0*K()*xi()/(1.0+mynode->N/N3);// Extra terms
      }
+  return mu;
  }
 
  double dynamics::delta(){			//Equation (17) GALB2013

@@ -42,13 +42,13 @@ void node::output(dynamics dyn){
 	}
 
     	cerr << "Other parameters:" << endl;
-	cerr << "units = " <<units<< "  ";
+	cerr << "units = " <<units<< "  " << endl;;
 	cerr << endl;
 	
 	if (units != 1){
-	  fprintf(stderr,"%  -12s %-9s %-9s %-9s %-9s %-9s %-9s %-5s %-1s %-9s %-9s  %-10s %-10s %-10s %-10s  %-10s \n",
+	  fprintf(stderr,"  %-12s %-9s %-9s %-9s %-9s %-9s %-9s %-5s %-1s %-9s %-9s  %-10s %-10s %-10s %-10s  %-10s \n",
 		  "(1)","(2)","(3)","(4)","(5)","(6)","(7)","(8)","(9)","(10)","(11)","(12)","(13)","(14)","(15)","(16)"); 
-	  fprintf(stderr,"%-12s %-9s %-9s %-9s %-9s %-9s %-9s %-6s %-1s  %-9s %-9s  %-10s %-10s %-10s %-10s %-10s  \n",
+	  fprintf(stderr,"  %-12s %-9s %-9s %-9s %-9s %-9s %-9s %-6s %-1s  %-9s %-9s  %-10s %-10s %-10s %-10s %-10s  \n",
 		  "t","N","M","rhoc","rc","rh","rj","kappa","S",
 		  "t_rc","t_rh",
 		  "lambda","xi","mu","epsilon","delta"); 
@@ -57,7 +57,7 @@ void node::output(dynamics dyn){
 	if (units > 0){
 	  fprintf(stderr,"  %-12s %-9s %-9s %-9s %-9s %-9s %-9s %-5s %-1s %-9s %-9s  %-10s %-10s %-10s %-10s  %-10s \n",
 		  "(1)","(2)","(3)","(4)","(5)","(6)","(7)","(8)","(9)","(10)","(11)","(12)","(13)","(14)","(15)","(16)"); 
-	  fprintf(stderr,"%-12s %-9s %-9s %-9s %-9s %-9s %-9s %-6s %-1s  %-9s %-9s  %-10s %-10s %-10s %-10s %-10s  \n",
+	  fprintf(stderr,"  %-12s %-9s %-9s %-9s %-9s %-9s %-9s %-6s %-1s  %-9s %-9s  %-10s %-10s %-10s %-10s %-10s  \n",
 		  "t","N","M","rhoc","rc","rh","rj","kappa","S",
 		  "t_rc","t_rh",
 		  "lambda","xi","mu","epsilon","delta"); 

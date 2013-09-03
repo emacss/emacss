@@ -114,7 +114,7 @@ void node::initialise(){
     E.zeta = 0.1;
   }
    
-  if (rh != 0 && units == 0){       //Check radius
+  if (rh != 0.78 && units == 0){       //Check radius
     cerr << "Half mass radius entered but N-body units. Ignoring entry" << endl;   
   }
   

@@ -1,5 +1,6 @@
 /**************************************************************/
 /*Headers - not all actually needed at present but here anyway*/
+#define _USE_MATH_DEFINES
 #include <iostream>
 #include <iomanip>
 #include <fstream>
