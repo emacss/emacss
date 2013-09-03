@@ -105,11 +105,13 @@ double dynamics::epsilon(){			//Equation (2) GALB2013
 }
 
 double dynamics::mu(){				//Equation (19) GALB2013
-  double mu = 0.0; 
+  double mu = 0.0, rhrj = 0;
+
+  if (mynode->galaxy.type > 0) rhrj = mynode->Rhj;
   
   if (mynode->E.source == 0){
       mu = K()*delta();                       //Increase due to shrinking core
-      mu += (mynode->Rhj/mynode->kappa - 2.0)*xi();//Shrink due to removal of stars
+      mu += (rhrj/mynode->kappa - 2.0)*xi();//Shrink due to removal of stars
       mu /= (1.0 + K());// Correction because rh appears in expression for kappa
      }
 

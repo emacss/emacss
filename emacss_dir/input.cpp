@@ -179,7 +179,7 @@ void node::initialise(){
   }
  
   //A few more factors set (that need the galaxy conditions)
-  Rhj = rh/rj; Rch = rc/rh; rj = r_jacobi();
+   rj = r_jacobi(); Rhj = rh/rj; Rch = rc/rh;
 
   //Sets pointer array for required parameters
   nbody[0] = &time; 
