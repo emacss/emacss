@@ -12,7 +12,7 @@ SE_OBJ=$(SE:.cpp=.o)
 all: emacss_dev
 
 emacss_dev: $(EMACSS_OBJ) $(DYN_OBJ) $(SE_OBJ)
-	$(CPP) $(CFLAGS) $(EMACSS_OBJ) $(DYN_OBJ) $(SE_OBJ) $(LM) -o $@
+	$(CPP) -fast $(CFLAGS) $(EMACSS_OBJ) $(DYN_OBJ) $(SE_OBJ) $(LM) -o $@
 
 clean:
 	rm *.o

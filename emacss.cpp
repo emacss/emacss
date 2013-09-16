@@ -31,14 +31,14 @@
 int main(int argc, char* argv[]){
 
   node cluster;
+  stellar_evo se_module;
+  dynamics dynamics_module;
   cluster.input(argc,argv);
   
-  stellar_evo se_module(&cluster);
-  dynamics dynamics_module(&cluster,&se_module);
+  se_module.load(&cluster,&dynamics_module);
+  dynamics_module.load(&cluster,&se_module);
   
   //Sets adiabatic expansion term and core collapse time for dynamics
-  se_module.set_X();
-  dynamics_module.set_tcc();
   
   //Writes initial conditions and t=0 output.
   cluster.output(se_module,dynamics_module); 
