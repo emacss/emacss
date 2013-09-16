@@ -16,7 +16,7 @@ void node::output(dynamics dyn){
 	    cerr << "zeta = " <<setprecision(3)<<E.zeta<< endl; 
 	    cerr << "Galaxy Conditions:" << endl;	
 	    cerr << "RG = " <<setprecision(3)<<galaxy.R*R_star/1e3<< " [kpc]  ";
-	    cerr << "vG = " <<setprecision(3)<<galaxy.v*(R_star/T_star)<< " [kms]  ";
+	    cerr << "vG = " <<setprecision(3)<<galaxy.v*(R_star/T_star)/pcMyr << " [kms]  ";
 	    cerr << "MG = " <<setprecision(3)<<galaxy.M*M_star<< " [M_sun]  ";
 	    cerr << "type = " <<galaxy.type<< endl;
 	}
@@ -46,7 +46,7 @@ void node::output(dynamics dyn){
 	cerr << endl;
 	
 	if (units != 1){
-	  fprintf(stderr,"  %-12s %-9s %-9s %-9s %-9s %-9s %-9s %-5s %-1s %-9s %-9s  %-10s %-10s %-10s %-10s  %-10s \n",
+	  fprintf(stderr,"  %-12s %-9s %-9s %-9s %-9s %-9s %-9s %-5s %-1s %-9s %-9s %-10s %-10s %-10s %-10s %-10s \n",
 		  "(1)","(2)","(3)","(4)","(5)","(6)","(7)","(8)","(9)","(10)","(11)","(12)","(13)","(14)","(15)","(16)"); 
 	  fprintf(stderr,"  %-12s %-9s %-9s %-9s %-9s %-9s %-9s %-6s %-1s  %-9s %-9s  %-10s %-10s %-10s %-10s %-10s  \n",
 		  "t","N","M","rhoc","rc","rh","rj","kappa","S",

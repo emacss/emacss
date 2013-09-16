@@ -52,7 +52,7 @@ void node::input(int argc, char* argv[]){
       break;
     case ('g'):                              //galaxy halo type flag
       value = optarg;
-      if (atoi(value) < 0 || atoi(value) > 1){
+      if (atoi(value) < 0 || atoi(value) > 2){
 	  cerr << "Galaxy Type Invalid" << endl;
 	  exit(1);
       }
@@ -131,6 +131,7 @@ void node::initialise(){
     }
     
   //Sets unit conversions - Assumes conversion to Plummer sphere
+    pcMyr = 0.977813106 ;                   //Converts km/s to pc/Myr
     G_star = 0.00449857;                    //Grav constant (pc^3M_sun^-1Myr^-2)
     M_star = mm*N;                          //Initial Mass of cluster (M_sun)
 
@@ -152,7 +153,7 @@ void node::initialise(){
   }
   else if (galaxy.M != 0 && galaxy.R == 0 && galaxy.v != 0){
     galaxy.R = (G*galaxy.M)/pow(galaxy.v,2);
-    cerr << "Galaxy set by radius and velocity" << endl;
+    cerr << "Galaxy set by radius and velocity" << galaxy.R << endl;
   }
   else if (galaxy.M != 0 && galaxy.R != 0 && galaxy.v == 0){
     galaxy.v = pow((G*galaxy.M)/galaxy.R,1.0/2.0);
@@ -176,10 +177,11 @@ void node::initialise(){
   if (units > 0){ 
     galaxy.M = galaxy.M/M_star;
     galaxy.R = galaxy.R/R_star;
+    galaxy.v = (galaxy.v*pcMyr)/(R_star/T_star);    
   }
  
   //A few more factors set (that need the galaxy conditions)
-   rj = r_jacobi(); Rhj = rh/rj; Rch = rc/rh;
+  rj = r_jacobi(); Rhj = rh/rj; Rch = rc/rh;
 
   //Sets pointer array for required parameters
   nbody[0] = &time; 
@@ -201,7 +203,7 @@ void node::zero(){
   /*Initialises a cluster to unphysical values. These are default flags used
     by the code to detect which properties are user defined.*/
   cerr << endl; 
-  cerr << "Evolve Me A Cluster of Stars v2.02" << endl;
+  cerr << "Evolve Me A Cluster of Stars v3.01" << endl;
   cerr << "-----------------------------------------"<<endl; 
   
   galaxy.M = galaxy.R = galaxy.v = 0; galaxy.type = 1;
@@ -212,5 +214,5 @@ void node::zero(){
   rh = 0.78; rv = 1.0; rc = 0.32; Rhj = 0;  
   kappa = E.zeta = E.source = 0;
   
-  units = 0; //Default = output in Nbody units
+  units = 1; //Default = output in Real units
 }
