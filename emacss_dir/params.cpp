@@ -7,7 +7,6 @@
 
 node::node(){    //Iterator for a cluster at any given time (initialisation)
 
-  frac = 0.1;
   gamma = 0.11;
   nvar = 11;                           //Number of parameters
   k1 = 0.295;

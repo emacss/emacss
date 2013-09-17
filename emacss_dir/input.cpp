@@ -52,7 +52,7 @@ void node::input(int argc, char* argv[]){
       break;
     case ('g'):                              //galaxy halo type flag
       value = optarg;
-      if (atoi(value) < 0 || atoi(value) > 1){
+      if (atoi(value) < 0 || atoi(value) > 2){
 	  cerr << "Galaxy Type Invalid" << endl;
 	  exit(1);
       }
@@ -80,8 +80,8 @@ void node::input(int argc, char* argv[]){
       break;
     case ('o'):                              //Output setting (Unit output)
       value = optarg;
-      if (atoi(value) < 0 || atoi(value) > 2){
-	  cerr << "Output flag: 0 = N-body, 1 = Real, 2 = Both" << endl;
+      if (atoi(value) < 0 || atoi(value) > 1){
+	  cerr << "Output flag: 0 = N-body, 1 = Real" << endl;
 	  exit(1);
       }
       units = atoi(value);
@@ -105,8 +105,8 @@ void node::initialise(){
    
   //Cluster - checks sufficient values are entered (general)
   if (N == 0){                           //Check number of stars supplied.
-    cerr << "No number of stars specified. Assuming N=100000" << endl;
-    N = 100000;
+    cerr << "No number of stars specified. Assuming N=64k" << endl;
+    N = 65536;
   }
   
   if (E.zeta == 0){                //Check energy conduction defined
@@ -117,20 +117,25 @@ void node::initialise(){
   if (rh != 0.78 && units == 0){       //Check radius
     cerr << "Half mass radius entered but N-body units. Ignoring entry" << endl;   
   }
-  
+   
+  if (Rhj == 0 && galaxy.M == 0 && galaxy.R == 0 && galaxy.v == 0){//Check gal
+    cerr << "No tidal field specified - assuming rh/rj = 0.1" << endl;   
+    Rhj = 0.1;
+  }
   //Cluster - checks sufficient values are entered (real output units)
   if (units > 0){
-    if (mm == 0){                //Check mass of cluster supplied.
-      cerr << "No initial mean mass specified. Assuming mm = 0.64M_sun" << endl;
-      mm = 0.64;  
+    if (mm == 0 && units > 0){                //Check mass of cluster supplied.
+      cerr << "No initial mean mass specified. Assuming mm = 0.5M_sun" << endl;
+      mm = 0.5;  
     } 
 
-    if (rh == 0.78 && units == 1){      //Check radius of cluster supplied.
-      cerr << "No initial radius specified. Assuming r = 1pc" << endl;
-      rh = 1;    
+    if (rh == 0.78){      //Check radius of cluster supplied.
+      cerr << "No initial radius specified. Assuming r = 0.78pc" << endl;
+      rh = 0.78;    
     }
     
   //Sets unit conversions - Assumes conversion to Plummer sphere
+    pcMyr = 0.977813106 ;                   //Converts km/s to pc/Myr
     G_star = 0.00449857;                    //Grav constant (pc^3M_sun^-1Myr^-2)
     M_star = mm*N;                          //Initial Mass of cluster (M_sun)
 
@@ -142,8 +147,10 @@ void node::initialise(){
   }
    
  //Sets final factors needed - kappa, mass, E, trh , trc, and rj
- mm = 1.0/N; rh = 0.78; kappa = rh/(4.0*rv);
- t_rh = trh(); t_rc = trc(); E.value = E_calc(); trhelapsed = 0; 
+ if (units < 1){
+   mm = 1.0/N; rh = 0.78; kappa = rh/(4.0*rv);
+   t_rh = trh(); t_rc = trc(); E.value = E_calc(); trhelapsed = 0; 
+ }
 
  //Galaxy set up - if unset, uses solar neighbourhood of MW-like galaxy.
   if (galaxy.M == 0 && galaxy.R != 0 && galaxy.v != 0){ 
@@ -152,19 +159,19 @@ void node::initialise(){
   }
   else if (galaxy.M != 0 && galaxy.R == 0 && galaxy.v != 0){
     galaxy.R = (G*galaxy.M)/pow(galaxy.v,2);
-    cerr << "Galaxy set by radius and velocity" << endl;
+    cerr << "Galaxy set by radius and velocity" << galaxy.R << endl;
   }
   else if (galaxy.M != 0 && galaxy.R != 0 && galaxy.v == 0){
     galaxy.v = pow((G*galaxy.M)/galaxy.R,1.0/2.0);
     cerr << "Galaxy set by mass and velocity" << endl;
   }
   else if (Rhj != 0){
-    cerr << "Galaxy set by rh/rj (mass assumed if not set)" << endl;
+    cerr << "Galaxy set by rh/rj" << endl;
     if (galaxy.M == 0) galaxy.M = 1e10; //Assumption - makes it work
     if (galaxy.type == 1)
-      galaxy.R = rh/Rhj*pow((3.0*galaxy.M)/(N*mm),1.0/3.0);
+      galaxy.R = (rh/Rhj)*pow((3.0*galaxy.M)/(N*mm),1.0/3.0);
     else if (galaxy.type == 2)
-      galaxy.R = rh/Rhj*pow((2.0*galaxy.M)/(N*mm),1.0/3.0);
+      galaxy.R = (rh/Rhj)*pow((2.0*galaxy.M)/(N*mm),1.0/3.0);
     galaxy.v = pow((G*galaxy.M)/galaxy.R,1.0/2.0);
   }
   else{
@@ -176,10 +183,13 @@ void node::initialise(){
   if (units > 0){ 
     galaxy.M = galaxy.M/M_star;
     galaxy.R = galaxy.R/R_star;
+    galaxy.v = (galaxy.v*pcMyr)/(R_star/T_star); 
+    mm = 1.0/N; rh = 0.78; kappa = rh/(4.0*rv);
+    t_rh = trh(); t_rc = trc(); E.value = E_calc(); trhelapsed = 0; 
   }
  
   //A few more factors set (that need the galaxy conditions)
-   rj = r_jacobi(); Rhj = rh/rj; Rch = rc/rh;
+  rj = r_jacobi(); Rhj = rh/rj; Rch = rc/rh;
 
   //Sets pointer array for required parameters
   nbody[0] = &time; 
@@ -201,7 +211,7 @@ void node::zero(){
   /*Initialises a cluster to unphysical values. These are default flags used
     by the code to detect which properties are user defined.*/
   cerr << endl; 
-  cerr << "Evolve Me A Cluster of Stars v2.02" << endl;
+  cerr << "Evolve Me A Cluster of Stars v2.03" << endl;
   cerr << "-----------------------------------------"<<endl; 
   
   galaxy.M = galaxy.R = galaxy.v = 0; galaxy.type = 1;
@@ -212,5 +222,5 @@ void node::zero(){
   rh = 0.78; rv = 1.0; rc = 0.32; Rhj = 0;  
   kappa = E.zeta = E.source = 0;
   
-  units = 0; //Default = output in Nbody units
+  units = 1; //Default = output in Real units
 }

@@ -37,8 +37,8 @@ class node{                       //Binding of cluster parameters at given time
   void convert();
   double E_calc(), trh(), r_jacobi();                      //Calculated factors
   double trc(), rhoc();                                    //Relaxation times
-  double G_star, M_star, R_star, T_star;                   //Conversion factors
-  double frac, tstep;                                      //Timesteps
+  double G_star, M_star, R_star, T_star, pcMyr;            //Conversion factors
+  double tstep;                                            //Timesteps
   double *nbody[11];                                       //Data arrays 
   int nvar;
  public:
