@@ -1,4 +1,4 @@
-	 Evolve Me A Cluster of StarS (EMACSS) - version 2.02
+	 Evolve Me A Cluster of StarS (EMACSS) - version 2.03
 	 By: Poul Alexander (University of Cambridge)
  	     Mark Gieles (University of Surrey)
 	     Henny Lamers (University of Amsterdam)
@@ -29,8 +29,7 @@
 	 relaxation time and stellar evolution.
 
 	 Full documentation is available in Alexander & Gieles 2012, 
-	 Gieles, Alexander, Lamers and Baumgardt 2012 and Alexander, 
-	 Gieles, Lamers and Baumgardt 2013 (in prep) and 
+	 Gieles, Alexander, Lamers and Baumgardt 2013.
 
 	 The options to specify a cluster (initial number of stars,
 	 half mass radius) can be specified with appropriate options 

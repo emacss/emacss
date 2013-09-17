@@ -45,8 +45,8 @@ void node::evolve(dynamics dyn){
   static double duplicate_nbody[11]; 
   static double dr1[11],dr2[11],dr3[11],dr4[11]; 
 
-  if (E.source == 0) tstep = 1.0/(1.0/(100*t_rc) + 1.0/(frac*t_rh));   
-  else tstep = frac*t_rh; 
+  if (E.source == 0) tstep = 1.0/(1.0/(1000*E.zeta*t_rc) + 1.0/(E.zeta*t_rh));
+  else tstep = E.zeta*t_rh; 
   
   for (int i=0;i<nvar;i++){
     duplicate_nbody[i] = *nbody[i]; //Backup
@@ -72,10 +72,8 @@ void node::evolve(dynamics dyn){
   for (int i=0;i<nvar;i++) 
     *nbody[i]=duplicate_nbody[i]+(tstep/6.0)*(dr1[i]+2.0*dr2[i]+2.0*dr3[i]+dr4[i]);
   convert(); 
-    
-  
+
   // Switch energy source on at core collapse. 
-  // Can be done after an integration step, because tstep = 0.1*t_rc
   if  (Rch <= dyn.Rchmin() && E.source == 0){
       tcc = time;                            //Stores core collapse time
       dyn.reset_K_constants();               //Changes parameters

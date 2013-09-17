@@ -6,7 +6,7 @@
  Alexander, Gieles and Lamers 2013.*/
 
 void help(){
-  cout << "\t Evolve Me A Cluster of StarS (EMACSS) - version 2.02";
+  cout << "\t Evolve Me A Cluster of StarS (EMACSS) - version 2.03";
   cout << '\n';
   cout << "\t By: Poul Alexander (University of Cambridge)\n ";
   cout << "\t     Mark Gieles (University of Surrey)\n";
@@ -38,8 +38,7 @@ void help(){
   cout << "\t relaxation time and stellar evolution.\n";
   cout << '\n';
   cout << "\t Full documentation is available in Alexander & Gieles 2012, \n";
-  cout << "\t Gieles, Alexander, Lamers and Baumgardt 2012 and Alexander, \n";
-  cout << "\t Gieles, Lamers and Baumgardt 2013 (in prep) and \n";
+  cout << "\t and Gieles, Alexander, Lamers and Baumgardt 2013, \n";
   cout << '\n';
   cout << "\t The options to specify a cluster (initial number of stars,\n";
   cout << "\t half mass radius) can be specified with appropriate options \n";
@@ -77,8 +76,10 @@ void help(){
   cout << "\t provided. If one or both are missing, the code will first \n";
   cout << "\t attempt to use orbital velocity, then filling factor rhrj.\n";
   cout << '\n';
-  cout << "\t When options are not defined an isolated cluster is used with:\n";
-  cout << "\t N=1e5\n";
+  cout << "\t When options are not defined a 64k cluster is used with:\n";
+  cout << "\t N=64k,\n";
+  cout << "\t r=0.78,\n";
+  cout << "\t R=0.1,\n"; 
   cout << '\n';
   cout << "\t If used to represent clusters of equal mass stars, the code\n";
   cout << "\t is only accurate from the start (i.e., throughout core \n";

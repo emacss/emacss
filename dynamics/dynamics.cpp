@@ -67,9 +67,10 @@ double dynamics::drcdt(){			//Equation (10) GALB2013
 //Dynamical Dimensionless Parameter Equations (see AG2012, s2 & GALB2013, s2,3)
 
 double dynamics::xi(){                          //Equation (26) AG2012
-  double xi = 0, tidal = 0;	        	//Equation (22) GALB2013
+  double xi = 0, tidal = 0, iso = 0;	  	//Equation (22) GALB2013
 
   tidal = (3.0/5.0)*mynode->E.zeta;
+  iso = xi1*mynode->E.zeta/0.1; 
 
   if (mynode->E.source == 0){
     double F = 0.0;   
@@ -77,11 +78,11 @@ double dynamics::xi(){                          //Equation (26) AG2012
     F = Rchmin()/mynode->Rch;
 
     xi = (f+(1-f)*F)*tidal*P();
-    xi += F*xi1*(1-P());
+    xi += F*iso*(1-P());
   }
   
   if (mynode->E.source > 0){ 
-    xi = tidal*P() + xi1*(1.0 - P());
+    xi = tidal*P() + iso*(1.0 - P());
   }
   
   return xi;
@@ -106,7 +107,7 @@ double dynamics::epsilon(){			//Equation (2) GALB2013
 
 double dynamics::mu(){				//Equation (19) GALB2013
   double mu = 0.0, rhrj = 0;
-
+  
   if (mynode->galaxy.type > 0) rhrj = mynode->Rhj;
   
   if (mynode->E.source == 0){
