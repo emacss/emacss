@@ -155,15 +155,15 @@ void node::initialise(){
  //Galaxy set up - if unset, uses solar neighbourhood of MW-like galaxy.
   if (galaxy.M == 0 && galaxy.R != 0 && galaxy.v != 0){ 
     galaxy.M = (pow(galaxy.v,2)*galaxy.R)/G;
-    cerr << "Galaxy set by mass and radius" << endl;
+    cerr << "Galaxy set by velocity and radius" << endl;
   }
   else if (galaxy.M != 0 && galaxy.R == 0 && galaxy.v != 0){
     galaxy.R = (G*galaxy.M)/pow(galaxy.v,2);
-    cerr << "Galaxy set by radius and velocity" << galaxy.R << endl;
+    cerr << "Galaxy set by mass and velocity" << galaxy.R << endl;
   }
   else if (galaxy.M != 0 && galaxy.R != 0 && galaxy.v == 0){
     galaxy.v = pow((G*galaxy.M)/galaxy.R,1.0/2.0);
-    cerr << "Galaxy set by mass and velocity" << endl;
+    cerr << "Galaxy set by mass and radius" << endl;
   }
   else if (Rhj != 0){
     cerr << "Galaxy set by rh/rj" << endl;
