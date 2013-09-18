@@ -190,6 +190,10 @@ void node::initialise(){
  
   //A few more factors set (that need the galaxy conditions)
   rj = r_jacobi(); Rhj = rh/rj; Rch = rc/rh;
+  if (Rhj > 0.33){
+    cerr << "Error: rh/rj out of acceptable range. Exiting..." << endl;
+    exit(10);
+  }
 
   //Sets pointer array for required parameters
   nbody[0] = &time; 
