@@ -44,9 +44,10 @@ void node::evolve(dynamics dyn){
     
   static double duplicate_nbody[11]; 
   static double dr1[11],dr2[11],dr3[11],dr4[11]; 
+	
+  if (E.source == 0) tstep = 1.0/(E.zeta/(10*t_rc) + E.zeta/(0.01*t_rh));
+  else tstep = 0.01*t_rh/E.zeta; 
 
-  if (E.source == 0) tstep = 1.0/(1.0/(1000*E.zeta*t_rc) + 1.0/(E.zeta*t_rh));
-  else tstep = E.zeta*t_rh; 
   
   for (int i=0;i<nvar;i++){
     duplicate_nbody[i] = *nbody[i]; //Backup
