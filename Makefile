@@ -20,19 +20,19 @@ clean:
 emacss.o: emacss.cpp
 	$(CPP) -g -c $^ -o $@
 
-input.o: emacss/input.cpp
+input.o: emacss_dir/input.cpp
 	$(CPP) -g -c $^ -o $@
 
-info.o: emacss/info.cpp
+info.o: emacss_dir/info.cpp
 	$(CPP) -g -c $^ -o $@
 
-params.o: emacss/params.cpp
+params.o: emacss_dir/params.cpp
 	$(CPP) -g -c $^ -o $@
 
-cluster.o: emacss/cluster.cpp
+cluster.o: emacss_dir/cluster.cpp
 	$(CPP) -g -c $^ -o $@
 
-output.o: emacss/output.cpp
+output.o: emacss_dir/output.cpp
 	$(CPP) -g -c $^ -o $@
 
 stellar_evolution.o: stevo/stellar_evolution.cpp

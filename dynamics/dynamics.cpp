@@ -5,25 +5,25 @@
 // Purely dynamical differential equations (see AG2012, s2 & AGLB2013, s?)
 double dynamics::dNdt(){
   double dNdt = 0;
-  dNdt = -((xi()+xi_ind())*mynode->N)/mynode->t_relax.nbody;  //Equation (6) AG2012
+  dNdt = -(xi()*mynode->N)/mynode->t_rhp.nbody;  //Equation (6) AG2012
   return dNdt;
 }
 
 double dynamics::dmmdt(){
   double dmdt = 0;
-  dmdt = -gamma()*mynode->mm.nbody/mynode->t_relax.nbody;  
+  dmdt = -gamma()*mynode->mm.nbody/mynode->t_rhp.nbody;  
   return dmdt;
 }
 
 double dynamics::drdt(){
   double drdt = 0;
-  drdt = (mu()*mynode->r.nbody)/mynode->t_relax.nbody;//Equation (7) AG2012
+  drdt = (mu()*mynode->r.nbody)/mynode->t_rhp.nbody;//Equation (7) AG2012
   return drdt;
 }
 
 double dynamics::dkdt(){                               //This is not used
   double dkdt = 0;
-  dkdt = -lambda()*mynode->kappa/mynode->t_relax.nbody;
+  dkdt = -lambda()*mynode->kappa/mynode->t_rhp.nbody;
   return dkdt;
 }
 
@@ -32,42 +32,36 @@ double dynamics::dtrhdt(){                      //t_rh per unit time
 }
 
 double dynamics::dtrhpdt(){                            //t_rh' per unit time
-  return myse->zeta()/(mynode->t_relax.nbody);   
+  return 1.0/(mynode->t_rhp.nbody);   
 }
 /*---------------------------------------------------------------------------*/
 
 /*---------------------------------------------------------------------------*/
 //Dynamical Dimensionless Parameter Equations (see AG2012, s2.2 & AGLB2013, s?)
 
-/*
-double dynamics::xi(){                           //Equation (26) AG2012	
-  double xi_nb = 0, xi_bal = 0, F = prec;
-  xi_nb = (3.0/5.0)*myse->zeta()*P();
-  xi_bal = xi_nb+xi0*(1.0-P());
-  if (mynode->trhp > mynode->T_DYN) return xi_bal;
-  else if (mynode->trhp > 0.5*mynode->T_DYN)
-      F = (prec-1.0)*(1.0-mynode->trhp/mynode->T_DYN)+1;
-  return xi_nb/F;
-}
-*/
 
 double dynamics::xi(){                           //Equation (26) AG2012	
+  double xi = 0;
+    xi = xi_i()+xi_e();
+  return xi;
+}
+
+double dynamics::xi_e(){                           //Equation (26) AG2012	
  
   double xi = 0, F = 1, f_ind = 0;
   if (mynode->trhp < mynode->T_DYN){
       F = pow(mynode->trhp/mynode->T_DYN,3);
   }
-  xi += F*xi0*(1.0-P())+(f+(1-f)*F)*(3.0/5.0)*myse->zeta()*P();
+  xi += F*xi0/myse->zeta()*(1.0-P())+(f+(1-f)*F)*(3.0/5.0)*P();
   return xi;
 }
 
-double dynamics::xi_ind(){
-  double ind = 0;
+double dynamics::xi_i(){
+  double xi = 0;
     if (mynode->galaxy.type > 0 && mynode->trhp < mynode->T_DYN) 
-	ind = f_delay()*f_max();
-  return ind;
+	xi += f_ind()*myse->gamma_se();
+  return xi;
 }
-
 
 double dynamics::gamma(){
   double gamma = 0;
@@ -76,22 +70,26 @@ double dynamics::gamma(){
 }
 
 double dynamics::gamma_dyn(){                   //Equation (??) AGL2013
-  double gamma = 0;
-  if (mynode->galaxy.type > 0) gamma += F*(xi()+xi_ind());
+  double gamma = 0, X = 0;
+    X = F*(mynode->mm.nbody-mynode->m_min.nbody)+mynode->m_min.nbody;
+  if (mynode->galaxy.type > 0)
+    gamma += (1.0-X/mynode->mm.nbody)*xi();
   return gamma;
 }
 
 double dynamics::lambda(){                      //Not yet in use
-  double lambda = 0;
-  lambda = (mynode->k_0-k_1)/mynode->T_DYN;
-  if (fabs(mynode->kappa-k_1) < 0.01) lambda = 0;
+  double lambda, F1;
+  F1 = (k_1-mynode->k_0)/mynode->T_DYN;
+  lambda = F1*pow(mynode->trhp/mynode->T_DYN,3);
+//  lambda = (mynode->k_0-k_1)/mynode->T_DYN;
+  if (fabs(mynode->kappa-k_1) < 1e-2) lambda = 0;
   
-  return lambda;
+  return -lambda/myse->zeta();
 }
 
 double dynamics::mu(){                          //Equation (8) AG2012
   double mu;
-  mu = myse->epsilon() - 2.0*xi() - 2.0*xi_ind() - lambda()- 2.0*gamma();
+  mu = myse->epsilon() - 2.0*xi() - lambda()- 2.0*gamma();
 //  cerr << mynode->time.Myr << ' ' << myse->epsilon() << ' ' << xi() << ' ' << gamma() << ' ' << mu << endl;
   return mu;
 }
@@ -112,20 +110,14 @@ double dynamics::P(){                                     //Equation (25) AG2012
   return f*g;
 }
 
-double dynamics::f_delay(){
-  double f_delay = 0, t_delay = 0;
-  
-  t_delay = n*mynode->tcrj.nbody;
-  f_delay += 1.0-exp(-mynode->time.nbody/t_delay);
-  
-  return f_delay;
-}
 
-double dynamics::f_max(){
-  double f_max = 0;
+double dynamics::f_ind(){
+  double f= 0;
   
+ // if (mynode->rhrj > 0.8*R1) 
+//      f = 2.5*(mynode->rhrj);
   if (mynode->rhrj > R1) 
-      f_max = 2.5*(mynode->rhrj-R1);
+      f = (exp(pow(mynode->rhrj/(1.4*R1),5))-1.0);
   
-  return f_max;
+  return f;
 }

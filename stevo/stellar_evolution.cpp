@@ -5,19 +5,19 @@
 
 double stellar_evo::dmsedt(){                            //Equation (?) AGLB2013
   double dmsedt = 0;
-  dmsedt -= (gamma_se()*mynode->mm.nbody)/mynode->t_relax.nbody;            
+  dmsedt -= (gamma_se()*mynode->mm.nbody)/mynode->t_rhp.nbody;            
   return dmsedt;
 }
 
 double stellar_evo::dmsegdt(){                            //Equation (?) AGLB2013
   double dmsegdt = 0;
-  dmsegdt += (chi()*mynode->mass_seg*zeta())/mynode->t_relax.nbody;            
+  dmsegdt += (chi()*mynode->mass_seg*zeta())/mynode->t_rhp.nbody;            
   return dmsegdt;
 }
 
 double stellar_evo::dEdt(){                       
     double dEdt = 0;
-    dEdt = epsilon()*fabs(mynode->E.nbody)/mynode->t_relax.nbody;
+    dEdt = epsilon()*fabs(mynode->E.nbody)/mynode->t_rhp.nbody;
   return dEdt;
 }
 /*---------------------------------------------------------------------------*/
@@ -38,7 +38,7 @@ double stellar_evo::epsilon(){                           //Equation (?) AGLB2013
 
   if (mynode->trhp > mynode->T_DYN){
       mynode->E.source = 2; 
-      epsilon = zeta();
+      epsilon = 1.0;
   }
   
   return epsilon;
@@ -47,25 +47,17 @@ double stellar_evo::epsilon(){                           //Equation (?) AGLB2013
 double stellar_evo::gamma_se(){                          //Equation (?) AGLB2013
   double gamma = 0;
   if (mynode->s != 0 && mynode->time.Myr > mynode->T_SE)
-      gamma += (nu*mynode->t_relax.nbody)/mynode->time.nbody\
+      gamma += (nu*mynode->t_rhp.nbody)/mynode->time.nbody\
 	      *(mynode->mm_se.nbody/mynode->mm.nbody);
   return gamma;
 }
 
 double stellar_evo::chi(){
     double chi = 0;
-    chi += (MS_max()-mynode->mass_seg);
+    chi += (MS_1-mynode->mass_seg);
     return chi;
 
 }
-
-double stellar_evo::MS_max(){
-    double MS = MS_1;
-    if (mynode->time.Myr > 0)
-    	MS = (MS_1);//*pow(mynode->time.Myr/mynode->T_SE,y)+1.0);
-    return MS;
-}
-
 
 /*---------------------------------------------------------------------------*/
 
@@ -85,7 +77,7 @@ double stellar_evo::tidal_escape(){
     if (mynode->galaxy.type > 0){
        A = (1.0/mynode->kappa)*(mynode->rhrj);
     }
-    epsilon = A*mydyn->xi();  
+    epsilon = A*(mydyn->xi_e()-mydyn->gamma_dyn());  
     return epsilon;
 }
 

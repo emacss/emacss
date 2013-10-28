@@ -52,25 +52,25 @@ class node{                       //Binding of cluster paramters at given time
   void check_input();
   void initialise();
   void solve_odes(double[],stellar_evo,dynamics);
-  void convert();
-  double E_calc(), trh(), r_jacobi(), t_crj();             //Calculated factors       ;                          //Galaxy conditions
+  void convert(stellar_evo);
+  double step_min();                      //Minimum stepsize, ensures progress
+  double E_calc(), trh(), r_jacobi(), t_crj();             //Calculated factors    
   double G_star, M_star, R_star, T_star;                   //Conversion factors
-  double frac, R;         //Timesteps, input
+  double G, frac, R;         //Constants, Timesteps, input
   double *nbody[13], *real[13];  //Data arrays
  public:
   node();
-  
   double gamma, rhrj, tstep, mass_seg; 
   int s, units;
   void input(int, char*[]);
   void zero();
   void evolve(stellar_evo,dynamics);
   void output(stellar_evo,dynamics);
-  t time, out_time, t_relax, tcrj;
+  t time, out_time, t_relax, t_rhp, tcrj;
   tidal_field galaxy;     
   energy E;
   double N, kappa, k_0, trhelapsed, trhp, T_DYN, T_SE;
-  mass mm, mm_se;
+  mass mm, mm_se, m_min;
   radius r, rj;
 };
 
@@ -84,13 +84,13 @@ class stellar_evo{
   void load(node*,dynamics*);
   double  nu, MS_1, y, z0, esc_frac;
   double dEdt(), dmsedt(), dmsegdt(); 
-  double epsilon(), gamma_se(), chi(), MS_max(), zeta();
+  double epsilon(), gamma_se(), chi(), zeta();
 };
 
 /*The following is the dynamics module - models pure dynamical effects*/
 class dynamics{
   double P();
-  double f_delay(), f_max(), td;
+  double f_ind(), td;
   node *mynode;
   stellar_evo *myse;
  public:
@@ -99,7 +99,7 @@ class dynamics{
   double R1, N1, x, z, xi0, F, k_1, n, f; //defining characters (set at intit)
   double dNdt(), dmdyndt(), drdt(), dkdt();
   double dtrhdt(), dtrhpdt(), dmmdt();
-  double xi(), xi_ind(), gamma(), gamma_dyn(), mu(), lambda();
+  double xi(), xi_e(), xi_i(), gamma(), gamma_dyn(), mu(), lambda();
 };
 
 /**************************************************************/
