@@ -1,20 +1,20 @@
-Basic interface version for EMACSS to use with C or C++ codes.
+Basic interface version for EMACSS to use with Python scripts.
 
 This version is based on the prototype version of EMACSS III, as of 28/10/13, and allows EMACSS to evolve a cluster from input time t_1 to t_2. 
 
-There are a number of input and output properties which must be recycled on each occasion if attempting sequential evolution of a single cluster (e.g. in the tidal field of a Milky Way like galaxy). These Will combine to monitor the evolution, and core state of the GC to retain accuracy similar to the default code.
+This version does not support the sequential evolution of a single cluster (e.g. in the tidal field of a Milky Way like galaxy), although can evolve a single cluster for a specif iced period of time.
 
-An example of the usage of this code is provided in demo.cpp. Briefly, the code requires input in the form of an array:
+An example of the usage of this code is provided in interface.py,, and the python module to use with the code is provided in emacss_module.py. Note that the link in this module must be changed to the local path to libemacss.so. Briefly, the code requires input in the form of an array:
 
-t_1    t_2    N    mm    mm_se    r    RG    vG    coll (whether the cluster has core collapsed or not)     ntrh' (elapsed)    MS    M0    r0
+t_1    t_2    N    mm   r  MG    RG    vG    zeta
 
-where t_1 and t_2 are the times at the start and end of evolution, N is the number of stars, and mm and mm_se are the mean mass of stars (with and without dynamical evolution changing mm, respectively. r is the half mass radius, RG and vG refer to the galactocentric distance and orbital velocity, and coll is a flag of whether the cluster has core collapsed or not. ntrh' is the number or elapsed relaxation times, MS is the mass segregation factor, and the last two are the initial radius and mass of the cluster (required for scaling). 
+where t_1 and t_2 are the times at the start and end of evolution, N is the number of stars, mm is the mean mass of stars, and r is the half mass radius. MG, RG and vG refer to the Galaxy mass, galactocentric distance and orbital velocity, while zeta is the fractional conduction of energy per trh for a balanced cluster.
 
 The output is now and array:
 
-t_2    N    M    mm    mm_se    r    rJ    dN/dt    dmm/dt    dM/dt    dr/dt    coll ntrh' (elapsed)    MS
+t_2    N    M    r    rJ    tcc  ntrh'
 
-where the quantities are the same as in the input, and rJ is the Jacobi radius. 
+where the quantities are the same as in the input, with M total mass, rJ the Jacobi radius, tcc the core collapse time (in Myr) and ntrh' the number of elapsed (modified) relaxation times.. 
 
 All units throughout are physical (M_sun, pc) expect RG (kpc).
 
