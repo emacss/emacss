@@ -1,0 +1,22 @@
+Basic interface version for EMACSS to use with C or C++ codes.
+
+This version is based on the prototype version of EMACSS III, as of 28/10/13, and allows EMACSS to evolve a cluster from input time t_1 to t_2. 
+
+There are a number of input and output properties which must be recycled on each occasion if attempting sequential evolution of a single cluster (e.g. in the tidal field of a Milky Way like galaxy). These Will combine to monitor the evolution, and core state of the GC to retain accuracy similar to the default code.
+
+An example of the usage of this code is provided in demo.cpp. Briefly, the code requires input in the form of an array:
+
+t_1    t_2    N    mm    mm_se    r    RG    vG    coll (whether the cluster has core collapsed or not)     ntrh' (elapsed)    MS    M0    r0
+
+where t_1 and t_2 are the times at the start and end of evolution, N is the number of stars, and mm and mm_se are the mean mass of stars (with and without dynamical evolution changing mm, respectively. r is the half mass radius, RG and vG refer to the galactocentric distance and orbital velocity, and coll is a flag of whether the cluster has core collapsed or not. ntrh' is the number or elapsed relaxation times, MS is the mass segregation factor, and the last two are the initial radius and mass of the cluster (required for scaling). 
+
+The output is now and array:
+
+t_2    N    M    mm    mm_se    r    rJ    dN/dt    dmm/dt    dM/dt    dr/dt    coll ntrh' (elapsed)    MS
+
+where the quantities are the same as in the input, and rJ is the Jacobi radius. 
+
+All units throughout are physical (M_sun, pc) expect RG (kpc).
+
+
+
