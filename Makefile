@@ -11,14 +11,11 @@ SE_OBJ=$(SE:.cpp=.o)
 
 all: emacss_dev
 
-emacss_dev: demo.o $(EMACSS_OBJ) $(DYN_OBJ) $(SE_OBJ)
-	$(CPP) -fast $(CFLAGS) demo.o $(EMACSS_OBJ) $(DYN_OBJ) $(SE_OBJ) $(LM) -o $@
+emacss_dev: $(EMACSS_OBJ) $(DYN_OBJ) $(SE_OBJ)
+	$(CPP) -fast $(CFLAGS) $(EMACSS_OBJ) $(DYN_OBJ) $(SE_OBJ) $(LM) -o $@
 
 clean:
 	rm *.o
-
-demo.o: demo.cpp
-	$(CPP) -g -c $^ -o $@
  
 emacss.o: emacss.cpp
 	$(CPP) -g -c $^ -o $@

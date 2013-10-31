@@ -9,8 +9,7 @@ node::node(){    //Iterator for a cluster at any given time (initialisation)
 
   frac = 0.01;
   gamma = 0.02;
-  T_SE = 10; 
-  s = 1;
+  T_SE = 2; 
 
 }
 

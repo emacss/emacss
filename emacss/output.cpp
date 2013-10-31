@@ -34,6 +34,7 @@ void node::output(stellar_evo se,dynamics dyn){
 	cerr << "Galaxy Conditions:" << endl;	
 	cerr << "RG = " <<setprecision(3)<<galaxy.R.pc/1e3<< " [kpc]  ";
 	cerr << "vG = " <<setprecision(3)<<galaxy.v.kms<< " [kms]  ";
+	cerr << "vc = " <<setprecision(3)<<galaxy.vc.kms<< " [kms]  ";
 	cerr << "MG = " <<setprecision(3)<<galaxy.M.Msun<< " [M_sun]  ";
 	cerr << "type = " <<galaxy.type<< endl;
 
@@ -45,28 +46,29 @@ void node::output(stellar_evo se,dynamics dyn){
 	if (units != 1 && out_time.Myr < numeric_limits<double>::max())	
 		cerr << "Output @ " <<setprecision(4)<<out_time.nbody;
 	cerr << endl;
-	
+		
         if (units > 0){
-	    printf("#1r t[Myr]\tN\t\tM[M_sun]\tr[pc]\t\trj[pc]\n");
+	    printf("#1r t[Myr]\tN\t\tM[M_sun]\tr[pc]\t\trj[pc]\t\tRG[kpc]\t\tvG[km/s]\n");
 	    printf("#2r trh[Myr]\tn_relax\t\tE[Real]\t\tMS-factor\tkappa\n");  
 	}
 	if (units != 1){
-	    printf("#1n t\t\tN\t\tM\t\tr\trj\n");
-	    printf("#2n trh\t\tn_relax\t\tE\t\tMS-factor\tepsilon\n");  
+	    printf("#1n t\t\tN\t\tM\t\tr\trj\tRG\tvG\n");
+	    printf("#2n trh\t\tn_relax\t\tE\t\tMS-factor\tkappa\n");  
 	}
 	if (out_time.Myr == numeric_limits<double>::max())
 	    printf("#3  epsilon\txi\t\tmu\t\tgamma\tlambda\n\n");
     }
+    cerr << pos[0]*R_star << ' ' << pos[1]*R_star << ' ' << vel[0]*V_star << ' ' << vel[1]*V_star << endl;
     if (out_time.Myr == numeric_limits<double>::max()){
 	if (units > 0){
-	    printf("#1r %8.4e\t%8.4e\t%8.4e\t%8.4e\t%8.4e\n",
-		  time.Myr,N,N*mm.Msun,r.pc,rj.pc);
+	    printf("#1r %8.4e\t%8.4e\t%8.4e\t%8.4e\t%8.4e\t%8.4e\t%8.4e\n",
+		  time.Myr,N,N*mm.Msun,r.pc,rj.pc,galaxy.R.pc/1e3,galaxy.v.kms);
 	    printf("#2r %8.4e\t%8.4e\t%8.4e\t%8.4e\t%8.4e\n",
 		  t_relax.Myr,trhelapsed,E.real,mass_seg,kappa);
 	}
 	if (units != 1){
-	    printf("#1n %8.4e\t%8.4e\t%8.4e\t%8.4e\t%8.4e\n",
-		  time.nbody,N,N*mm.nbody,r.nbody,rj.nbody);
+	    printf("#1n %8.4e\t%8.4e\t%8.4e\t%8.4e\t%8.4e\t%8.4e\t%8.4e\n",
+		  time.nbody,N,N*mm.nbody,r.nbody,rj.nbody,galaxy.R.nbody,galaxy.v.nbody);
     	    printf("#2n %8.4e\t%8.4e\t%8.4e\t%8.4e\t\t%8.4e\n",
 		  t_relax.nbody,trhelapsed,E.nbody,mass_seg,kappa);
 	}

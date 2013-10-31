@@ -42,41 +42,39 @@ typedef struct{ //Energy information - output, steady state, generation,
 
 typedef struct{  //The properties defining the tidal field
   int type;
-  mass M; radius R; velocity v;
+  mass M; radius R, R0; velocity v, vc; double e;
 } tidal_field;
 
 class stellar_evo;
 class dynamics;
 
 class node{                       //Binding of cluster paramters at given time
-
+  void check_input();
+  void initialise();
   void solve_odes(double[],stellar_evo,dynamics);
   void convert(stellar_evo);
+  void get_acc(double[], double[]);       //Orbit central acceleration
+  double E_orb();       //Orbit energy check
   double step_min();                      //Minimum stepsize, ensures progress
-  double E_calc(), trh(), r_jacobi(), t_crj();             //Calculated factors    
-
+  double E_calc(), trh(), r_jacobi();      //Calculated factors    
+  double G_star, M_star, R_star, T_star, V_star;  //Conversion factors
   double G, frac, R;         //Constants, Timesteps, input
   double *nbody[13], *real[13];  //Data arrays
+  double pos[3], vel[3], acc[3]; //Orbital data (galaxy orbit)
  public:
   node();
-  void check_input();
-  void input(double []);
-  void evaluate(stellar_evo,dynamics,double []);
-  void initialise();
   double gamma, rhrj, tstep, mass_seg; 
-  double G_star, M_star, R_star, T_star;                   //Conversion factors
-  int s, units, coll;
+  int s, units;
   void input(int, char*[]);
-  void direct_input(double []);
   void zero();
   void evolve(stellar_evo,dynamics);
   void output(stellar_evo,dynamics);
-  t time, out_time, t_relax, t_rhp, tin;
+  t time, out_time, t_relax, t_rhp, tcrj;
   tidal_field galaxy;     
   energy E;
-  double N, N0, kappa, k_0, trhelapsed, trhp, T_DYN, T_SE;
-  mass mm, mm_se, m_min, M0;
-  radius r, r0,rj;
+  double N, kappa, k_0, trhelapsed, trhp, T_DYN, T_SE, E_orbital;
+  mass mm, mm_se, m_min;
+  radius r, rj;
 };
 
 /*The following is the stellar evolution module - models stellar effects*/

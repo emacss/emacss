@@ -52,8 +52,8 @@ double dynamics::xi_e(){                           //Equation (26) AG2012
   if (mynode->trhp < mynode->T_DYN){
       F = pow(mynode->trhp/mynode->T_DYN,3);
   }
-  xi += F*xi0/myse->zeta()*(1.0-P())+(f+(1-f)*F)*(3.0/5.0)*P();
-  return xi;
+  xi += F*xi0*(1.0-P())+(f+(1-f)*F)*(3.0/5.0)*myse->zeta()*P();
+  return xi/myse->zeta();
 }
 
 double dynamics::xi_i(){
@@ -102,6 +102,7 @@ double dynamics::mu(){                          //Equation (8) AG2012
 double dynamics::P(){                                     //Equation (25) AG2012
   double f = 0, g = 0;
   
+  mynode->gamma=0.02;
   if (mynode->galaxy.type > 0){
       f += pow((mynode->N*log(mynode->gamma*N1))/\
 	   (N1*log(mynode->gamma*mynode->N)),(1.0-x));  
