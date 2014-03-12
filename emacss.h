@@ -9,6 +9,7 @@
 #include <sstream>
 #include <cstring>
 #include <cmath>
+#include <limits>
 
 #include <stdlib.h>
 #include <stdio.h>
