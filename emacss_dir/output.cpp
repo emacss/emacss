@@ -1,26 +1,36 @@
 #include "../emacss.h"
 
-void node::output(stellar_evo se,dynamics dyn){
+void node::output(stellar_evo se, dynamics dyn){
     
     static bool first = true;
-//    F = -se.sigma_R();
+    
     if (first){
 	first = false;
 	
 	cerr << "Cluster initialised with:" << endl;
 	if (units > 0){
 	    cerr << "[Real] N = " <<setprecision(6)<<N<< "  ";
-	    cerr << "mm = " <<setprecision(4)<<mm.Msun<< " [M_sun]  ";
-	    cerr << "r = " <<setprecision(4)<<r.pc<< " [pc]  ";
-	    cerr << "rJ = " <<setprecision(4)<<rj.pc<< " [pc]  ";
-	    cerr << "zeta = " <<setprecision(3)<<E.zeta<< endl;  
+	    cerr << "mm = " <<setprecision(4)<<mm*M_star<< " [M_sun]  ";
+	    cerr << "r = " <<setprecision(4)<<rh*R_star<< " [pc]  ";
+	    cerr << "rJ = " <<setprecision(4)<<rj*R_star<< " [pc]  ";
+	    cerr << "zeta = " <<setprecision(3)<<E.zeta<< endl; 
+	    cerr << "Galaxy Conditions:" << endl;	
+	    cerr << "[Real] RG = " <<setprecision(3)<<galaxy.R*R_star/1e3<< " [kpc]  ";
+	    cerr << "vG = " <<setprecision(3)<<galaxy.v*(R_star/T_star)/pcMyr << " [kms]  ";
+	    cerr << "MG = " <<setprecision(3)<<galaxy.M*M_star<< " [M_sun]  ";
+	    cerr << "type = " <<galaxy.type<< endl;
 	}
 	if (units != 1){
 	    cerr << "[N-body] N = " <<setprecision(6)<<N<< "  ";
-	    cerr << "mm = " <<setprecision(4)<<mm.nbody<< "  ";
-	    cerr << "r = " <<setprecision(4)<<r.nbody<< "  ";
-	    cerr << "rJ = " <<setprecision(4)<<rj.nbody<< "  ";
+	    cerr << "mm = " <<setprecision(4)<<mm<< "  ";
+	    cerr << "r = " <<setprecision(4)<<rh<< "  ";
+	    cerr << "rJ = " <<setprecision(4)<<rj<< "  ";
 	    cerr << "zeta = " <<setprecision(3)<<E.zeta<< endl;  
+	    cerr << "Galaxy Conditions:" << endl;	
+	    cerr << "[N-body] RG = " <<setprecision(3)<<galaxy.R<<"  ";
+	    cerr << "vG = " <<setprecision(3)<<galaxy.v<< " ";
+	    cerr << "MG = " <<setprecision(3)<<galaxy.M<< " ";
+	    cerr << "type = " <<galaxy.type<< endl; 
 	} 
 	
 	if (units > 0){
@@ -30,69 +40,67 @@ void node::output(stellar_evo se,dynamics dyn){
 	    cerr << "R_scale = " <<setprecision(4)<<R_star<< "  ";
 	    cerr << "T_scale = " <<setprecision(4)<<T_star<< endl;
 	}
-	    
-	cerr << "Galaxy Conditions:" << endl;	
-	cerr << "RG = " <<setprecision(3)<<galaxy.R.pc/1e3<< " [kpc]  ";
-	cerr << "vG = " <<setprecision(3)<<galaxy.v.kms<< " [kms]  ";
-	cerr << "MG = " <<setprecision(3)<<galaxy.M.Msun<< " [M_sun]  ";
-	cerr << "type = " <<galaxy.type<< endl;
 
     	cerr << "Other parameters:" << endl;
-	cerr << "SE = " <<s<< "  ";
-	cerr << "units = " <<units<< "  ";
-	if (units > 0 && out_time.Myr < numeric_limits<double>::max())	
-		cerr << "Output @ " <<out_time.Myr<<" [Myr]";
-	if (units != 1 && out_time.Myr < numeric_limits<double>::max())	
-		cerr << "Output @ " <<setprecision(4)<<out_time.nbody;
+	cerr << "SE = " << s << "  ";
+	cerr << "units = " <<units<< "  " << endl;
+	if (units > 0 && out_time < numeric_limits<double>::max()/T_star)	
+		cerr << "Evolving the cluster for " <<out_time*T_star<<" [Myr]" << endl;
+	if (units != 1 && out_time < numeric_limits<double>::max()/T_star)	
+		cerr << "Evolving the cluster for " <<setprecision(4)<<out_time << endl;
 	cerr << endl;
 	
-        if (units > 0){
-	    printf("#1r t[Myr]\tN\t\tM[M_sun]\tr[pc]\t\trj[pc]\n");
-	    printf("#2r trh[Myr]\tn_relax\t\tE[Real]\t\tMS-factor\tkappa\n");  
+        if (s == 0){
+	  if (units == 0){
+	    fprintf(stderr,"  %-12s %-9s %-9s %-9s %-9s %-9s %-9s %-7s %-5s %-9s %-9s %-10s %-10s %-10s %-10s %-10s \n",
+		  "(1)","(2)","(3)","(4)","(5)","(6)","(7)","(8)","(9)","(10)","(11)","(12)","(13)","(14)","(15)","(16)"); 
+	    fprintf(stderr,"  %-12s %-9s %-9s %-9s %-9s %-9s %-9s %-7s %-5s %-9s %-9s %-10s %-10s %-10s %-10s %-10s \n",
+		  "t","N","M","rhoc","rc","rh","rj","kappa","S",
+		  "t_rc","t_rh",
+		  "lambda","xi","mu","epsilon","delta"); 
+	  }
+	
+	  if (units == 1){
+	    fprintf(stderr,"  %-12s %-9s %-9s %-9s %-9s %-9s %-9s %-7s %-5s %-9s %-9s %-10s %-10s %-10s %-10s %-10s \n",
+		  "(1)","(2)","(3)","(4)","(5)","(6)","(7)","(8)","(9)","(10)","(11)","(12)","(13)","(14)","(15)","(16)"); 
+	    fprintf(stderr,"  %-12s %-9s %-9s %-9s %-9s %-9s %-9s %-7s %-5s %-9s %-9s %-10s %-10s %-10s %-10s %-10s \n",
+		  "t","N","M","rhoc","rc","rh","rj","kappa","S",
+		  "t_rc","t_rh",
+		  "lambda","xi","mu","epsilon","delta"); 
+	    fprintf(stderr,"  %-12s %-9s %-9s %-9s %-9s %-9s %-9s %-7s %-5s %-9s %-9s %-10s %-10s %-10s %-10s %-10s \n",
+		  "[Myr]"," ","[Mo]","[Mo/pc3]","[pc]","[pc]","[pc]"," ","  ","[Myr]","[Myr]"," "," "," "," "," ");  
+	    
+          }
 	}
-	if (units != 1){
-	    printf("#1n t\t\tN\t\tM\t\tr\trj\n");
-	    printf("#2n trh\t\tn_relax\t\tE\t\tMS-factor\tepsilon\n");  
+	else{
+	    fprintf(stderr,"  %-12s %-9s %-9s %-9s %-9s %-9s %-9s %-7s %-5s %-9s %-9s %-11s %-9s %-10s %-10s %-10s %-10s %-10s\n",
+		  "(1)","(2)","(3)","(4)","(5)","(6)","(7)","(8)","(9)","(10)","(11)","(12)","(13)","(14)","(15)","(16)","(17)","(18)"); 
+	    fprintf(stderr,"   %-12s %-9s %-9s %-9s %-9s %-9s %-9s %-7s %-4s %-10s %-8s %-12s %-8s %-10s %-11s %-10s %-9s %-10s\n" ,
+		  "t","N","M","rh","rj","MS","E", "kappa","S",
+		  "t_rh","nc","t_rh'","nc'",
+		  "gamma","lambda","xi","mu","epsilon"); 
+	    fprintf(stderr,"  %-12s %-9s %-9s %-9s %-9s %-9s %-9s %-7s %-5s %-9s %-9s %-9s %-9s %-10s %-10s %-10s %-10s %-10s\n",
+		  "[Myr]"," ","[Mo]","[pc]","[pc]"," "," "," "," ","[Myr]"," ","[Myr]"," "," "," "," "," "," ");  
 	}
-	if (out_time.Myr == numeric_limits<double>::max())
-	    printf("#3  epsilon\txi\t\tmu\t\tgamma\tlambda\n\n");
     }
-    if (out_time.Myr == numeric_limits<double>::max()){
-	if (units > 0){
-	    printf("#1r %8.4e\t%8.4e\t%8.4e\t%8.4e\t%8.4e\n",
-		  time.Myr,N,N*mm.Msun,r.pc,rj.pc);
-	    printf("#2r %8.4e\t%8.4e\t%8.4e\t%8.4e\t%8.4e\n",
-		  t_relax.Myr,trhelapsed,E.real,mass_seg,kappa);
+    
+    if (s == 0){	
+      if (units  == 0){
+        printf("%12.6e %9.3e %9.3e %9.3e %9.3e %9.3e %9.3e %7.3e %1d   %9.3e %9.3e %10.3e %10.3e %10.3e %10.3e %10.3e\n",
+	time, N, N*mm,rhoc(),rc, rh,rj,kappa,E.source,t_rc,t_rh,
+	dyn.lambda(),dyn.xi(),dyn.mu(),se.epsilon(),dyn.delta());  
+      }
+      if (units  == 1){
+        printf("%12.6e %9.3e %9.3e %9.3e %9.3e %9.3e %9.3e %7.3e %1d   %9.3e %9.3e %10.3e %10.3e %10.3e %10.3e %10.3e\n",
+	time*T_star, N, N*mm*M_star,rhoc()*(M_star/pow(R_star,3)),rc*R_star,
+	rh*R_star,rj*R_star,kappa,E.source,t_rc*T_star,t_rh*T_star,
+	dyn.lambda(),dyn.xi(),dyn.mu(),se.epsilon(),dyn.delta());
 	}
-	if (units != 1){
-	    printf("#1n %8.4e\t%8.4e\t%8.4e\t%8.4e\t%8.4e\n",
-		  time.nbody,N,N*mm.nbody,r.nbody,rj.nbody);
-    	    printf("#2n %8.4e\t%8.4e\t%8.4e\t%8.4e\t\t%8.4e\n",
-		  t_relax.nbody,trhelapsed,E.nbody,mass_seg,kappa);
-	}
-	printf("#3  %8.4e\t%8.4e\t%8.4e\t%8.4e\t%8.4e\n\n",
-		se.epsilon(),dyn.xi(),dyn.mu(),dyn.gamma(),dyn.lambda());
     }
-    if (time.nbody > out_time.nbody && units > 0){
-	    printf("\n#1r  %8.4e\t%8.4e\t%8.4e\t%8.4e\t%8.4\n",
-		  time.Myr,N,N*mm.Msun,r.pc,rj.pc);
-	    printf("#2r  %8.4e\t%8.4e\t%8.4e\t%8.4e\t\t%8.4e\n",
-		  t_relax.Myr,trhelapsed,E.real,mass_seg,kappa);
-    }
-    if (time.nbody > out_time.nbody && units != 1){
-	    printf("\n#1n  %8.4e\t%8.4e\t%8.4e\t%8.4e\t%8.4\n",
-		    time.nbody,N,N*mm.nbody,r.nbody,rj.nbody);
-	    printf("#2n  %8.4e\t%8.4e\t%8.4e\t%8.4e\t\t%8.4e\n",
-		  t_relax.nbody,trhelapsed,E.nbody,mass_seg,kappa);
-    }
-    if (time.nbody < out_time.nbody && N < 100 \
-	&& units > 0 && out_time.nbody < numeric_limits<double>::max()){
-	    printf("\n#1r  %8.4e\t0\t\t\t0\t\t0\t\n",out_time.Myr);
-	    printf("#2r  0\t\t%8.4e\t0\t\t%8.4e\t0\n",trhelapsed,mass_seg);
-    }
-    if (time.nbody < out_time.nbody && N < 100 \
-	&& units != 1 && out_time.nbody < numeric_limits<double>::max()){
-	    printf("\n#1n  %8.4e\t0\t\t\t0\t\t0\t\n",out_time.nbody);
-	    printf("#2n  0\t\t%8.4e\t0\t\t%8.4e\t0\n",trhelapsed,mass_seg);
+    else{	
+        printf("%12.6e %9.3e %9.3e %9.3e %9.3e %9.3e %9.3e %7.3e  %1d  %9.3e %9.3e %10.3e %10.3e %10.3e %10.3e %10.3e %10.3e %10.3e\n",
+	time*T_star, N, N*mm*M_star,rh*R_star,rj*R_star, MS, E.value,
+        kappa, E.source, t_rh*T_star, trhelapsed, t_rhp*T_star, trhpelapsed,
+	dyn.gamma(), dyn.lambda(),dyn.xi(),dyn.mu(),se.epsilon());
     }
 }

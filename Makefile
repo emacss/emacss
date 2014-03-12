@@ -9,10 +9,10 @@ EMACSS_OBJ=$(EMACSS:.cpp=.o)
 DYN_OBJ=$(DYN:.cpp=.o)
 SE_OBJ=$(SE:.cpp=.o)
 
-all: emacss_dev
+all: emacss
 
-emacss_dev: $(EMACSS_OBJ) $(DYN_OBJ) $(SE_OBJ)
-	$(CPP) -fast $(CFLAGS) $(EMACSS_OBJ) $(DYN_OBJ) $(SE_OBJ) $(LM) -o $@
+emacss: $(EMACSS_OBJ) $(DYN_OBJ) $(SE_OBJ)
+	$(CPP) $(CFLAGS) $(EMACSS_OBJ) $(DYN_OBJ) $(LM) $(SE_OBJ) -o $@
 
 clean:
 	rm *.o
@@ -35,8 +35,8 @@ cluster.o: emacss_dir/cluster.cpp
 output.o: emacss_dir/output.cpp
 	$(CPP) -g -c $^ -o $@
 
-stellar_evolution.o: stevo/stellar_evolution.cpp
-	$(CPP) -g -c $^ -o $@
-
 dynamics.o: dynamics/dynamics.cpp
+	$(CPP) -g -c $^ -o $@
+	
+stellar_evolution.o: stevo/stellar_evolution.cpp
 	$(CPP) -g -c $^ -o $@

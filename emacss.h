@@ -1,5 +1,6 @@
 /**************************************************************/
 /*Headers - not all actually needed at present but here anyway*/
+#define _USE_MATH_DEFINES
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -8,7 +9,6 @@
 #include <sstream>
 #include <cstring>
 #include <cmath>
-#include <limits>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -17,89 +17,92 @@ using namespace std;
 /**************************************************************/
 
 /**************************************************************/
-/*Declares structuresand the parameter classes*/
-
-typedef struct{  //Time information - output, N-body, real, elapsed relaxation
-  double nbody, Myr;
-} t;
-
-typedef struct{  //Mass information - N-body, real
-  double nbody, Msun;
-} mass;
-
-typedef struct{  //Radius information - N-body, real
-  double nbody, pc;
-} radius;
-
-typedef struct{  //Radius information - N-body, real
-  double nbody, kms;
-} velocity;
+/*Declares structures and the parameter classes*/
 
 typedef struct{ //Energy information - output, steady state, generation, 
-  double zeta, nbody, real;
+  double zeta, value;
   int source;
 } energy;
 
 typedef struct{  //The properties defining the tidal field
-  int type;
-  mass M; radius R; velocity v;
+  int type, f;
+  double M, R, R2, v;
 } tidal_field;
 
 class stellar_evo;
 class dynamics;
 
-class node{                       //Binding of cluster paramters at given time
-  void check_input();
-  void initialise();
+class node{                       //Binding of cluster parameters at given time
   void solve_odes(double[],stellar_evo,dynamics);
-  void convert(stellar_evo);
-  double step_min();                      //Minimum stepsize, ensures progress
-  double E_calc(), trh(), r_jacobi(), t_crj();             //Calculated factors    
-  double G_star, M_star, R_star, T_star;                   //Conversion factors
-  double G, frac, R;         //Constants, Timesteps, input
-  double *nbody[13], *real[13];  //Data arrays
+  void convert(stellar_evo,dynamics);
+  double E_calc(), trh(), trhp(), r_jacobi();              //Calculated factors
+  double trc(), rhoc();                                    //Relaxation times
+  double step_min();                                      //Minimum stepsize
+  double G_star, M_star, R_star, T_star, pcMyr;            //Conversion factors
+  double tstep;                                            //Timesteps
+  double *nbody[13];                                       //Data arrays 
+  int nvar;
  public:
   node();
-  double gamma, rhrj, tstep, mass_seg; 
-  int s, units;
+  int units, s;
   void input(int, char*[]);
+  void initialise(stellar_evo,dynamics);
   void zero();
+  void load(dynamics*,stellar_evo*);
   void evolve(stellar_evo,dynamics);
   void output(stellar_evo,dynamics);
-  t time, out_time, t_relax, t_rhp, tcrj;
-  tidal_field galaxy;     
-  energy E;
-  double N, kappa, k_0, trhelapsed, trhp, T_DYN, T_SE;
-  mass mm, mm_se, m_min;
-  radius r, rj;
+  tidal_field galaxy;                                      //Galaxy conditions
+  double time, t_rh, t_rhp, t_rc, tcc, out_time, tdf;      //Times
+  energy E;                                                //Energies
+  double N, kappa, trhelapsed, trhpelapsed, MS, frac, psi; //Dimensionless
+  double mm, mm_se, m_max, m_max0,  m_min;                 //Masses
+  double rh, rv, rj, rc;                                   //Radii
+  double Rhj, Rch;                                         //Ratios
+  double gamma, k0, k1, Rch0;                              //Changeable parameters
 };
 
 /*The following is the stellar evolution module - models stellar effects*/
-class stellar_evo{        
+class stellar_evo{     
+  double tidal_escape(), p();
   node *mynode;
   dynamics *mydyn;
-  double tidal_escape(), pcc();
+  double  nu, y, esc_frac;
+  double m_ns, m_ref, t_ref, t_se;
+  double psi1, psi0;                                        //Ratios 
  public:
   stellar_evo();
   void load(node*,dynamics*);
-  double  nu, MS_1, y, z0, esc_frac;
+  void tse(double, double);
+  double MS_1;
+  //Differential equations
   double dEdt(), dmsedt(), dmsegdt(); 
-  double epsilon(), gamma_se(), chi(), zeta();
+  //Dimensionless factors
+  double epsilon(), gamma_se(), chi(), zeta(), psi(), m_up();
 };
 
 /*The following is the dynamics module - models pure dynamical effects*/
 class dynamics{
-  double P();
-  double f_ind(), td;
+  double P(), K(), k(), f_ind(), F();   //Tidal Factor (AG2012, eq: 25)
+  double y[];
   node *mynode;
   stellar_evo *myse;
+  double R1, N1, x, z, xi1, f, t_df, Fej;    //Tidal characteristics (set at start)
+  double delta_1, delta_2;                       //Core characteristics
+  double N2, N3;                                 //Core Scalings
+  double Y, b, q;                                //Misc
  public:
   dynamics();
   void load(node*,stellar_evo*);
-  double R1, N1, x, z, xi0, F, k_1, n, f; //defining characters (set at intit)
-  double dNdt(), dmdyndt(), drdt(), dkdt();
-  double dtrhdt(), dtrhpdt(), dmmdt();
-  double xi(), xi_e(), xi_i(), gamma(), gamma_dyn(), mu(), lambda();
+  void  reset_K_constants(), set_tcc(), set_k0(); //Functions
+  void tdf(double, double, double, double);
+  double nc;                                     //Needed for energy in myse
+  double Rchmin(), m_ej();
+  //Differential equations
+  double dNdt(), dmmdt(), drdt(), dkdt(), drcdt();  
+  double dtrhdt(), dtrhpdt(), dr2dt();
+  //Dimensionless factors
+  double xi(), xi_e(), xi_i(), gamma(), gamma_dyn();
+  double mu(), lambda(), delta(), epsilon();    
 };
 
 /**************************************************************/
