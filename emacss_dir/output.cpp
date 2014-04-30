@@ -52,19 +52,19 @@ void node::output(stellar_evo se, dynamics dyn){
 	
         if (s == 0){
 	  if (units == 0){
+	    fprintf(stderr,"  %-12s %-9s %-9s %-9s %-9s %-9s %-9s %-9s %-7s %-5s %-9s %-9s %-10s %-10s %-10s %-10s %-10s \n",
+		  "(1)","(2)","(3)","(4)","(5)","(6)","(7)","(8)","(9)","(10)","(11)","(12)","(13)","(14)","(15)","(16)","(17)"); 
 	    fprintf(stderr,"  %-12s %-9s %-9s %-9s %-9s %-9s %-9s %-7s %-5s %-9s %-9s %-10s %-10s %-10s %-10s %-10s \n",
-		  "(1)","(2)","(3)","(4)","(5)","(6)","(7)","(8)","(9)","(10)","(11)","(12)","(13)","(14)","(15)","(16)"); 
-	    fprintf(stderr,"  %-12s %-9s %-9s %-9s %-9s %-9s %-9s %-7s %-5s %-9s %-9s %-10s %-10s %-10s %-10s %-10s \n",
-		  "t","N","M","rhoc","rc","rh","rj","kappa","S",
+		  "t","RG","N","M","rhoc","rc","rh","rj","kappa","S",
 		  "t_rc","t_rh",
 		  "lambda","xi","mu","epsilon","delta"); 
 	  }
 	
 	  if (units == 1){
+	    fprintf(stderr,"  %-12s %-9s %-9s %-9s %-9s %-9s %-9s %-9s %-7s %-5s %-9s %-9s %-10s %-10s %-10s %-10s %-10s \n",
+		  "(1)","(2)","(3)","(4)","(5)","(6)","(7)","(8)","(9)","(10)","(11)","(12)","(13)","(14)","(15)","(16)","(17)"); 
 	    fprintf(stderr,"  %-12s %-9s %-9s %-9s %-9s %-9s %-9s %-7s %-5s %-9s %-9s %-10s %-10s %-10s %-10s %-10s \n",
-		  "(1)","(2)","(3)","(4)","(5)","(6)","(7)","(8)","(9)","(10)","(11)","(12)","(13)","(14)","(15)","(16)"); 
-	    fprintf(stderr,"  %-12s %-9s %-9s %-9s %-9s %-9s %-9s %-7s %-5s %-9s %-9s %-10s %-10s %-10s %-10s %-10s \n",
-		  "t","N","M","rhoc","rc","rh","rj","kappa","S",
+		  "t","RG","N","M","rhoc","rc","rh","rj","kappa","S",
 		  "t_rc","t_rh",
 		  "lambda","xi","mu","epsilon","delta"); 
 	    fprintf(stderr,"  %-12s %-9s %-9s %-9s %-9s %-9s %-9s %-7s %-5s %-9s %-9s %-10s %-10s %-10s %-10s %-10s \n",
@@ -73,10 +73,10 @@ void node::output(stellar_evo se, dynamics dyn){
           }
 	}
 	else{
-	    fprintf(stderr,"  %-12s %-9s %-9s %-9s %-9s %-9s %-9s %-7s %-5s %-9s %-9s %-11s %-9s %-10s %-10s %-10s %-10s %-10s\n",
-		  "(1)","(2)","(3)","(4)","(5)","(6)","(7)","(8)","(9)","(10)","(11)","(12)","(13)","(14)","(15)","(16)","(17)","(18)"); 
+	    fprintf(stderr,"  %-12s %-9s %-9s %-9s %-9s %-9s %-9s %-9s %-7s %-5s %-9s %-9s %-11s %-9s %-10s %-10s %-10s %-10s %-10s\n",
+		  "(1)","(2)","(3)","(4)","(5)","(6)","(7)","(8)","(9)","(10)","(11)","(12)","(13)","(14)","(15)","(16)","(17)","(18)","(19)"); 
 	    fprintf(stderr,"   %-12s %-9s %-9s %-9s %-9s %-9s %-9s %-7s %-4s %-10s %-8s %-12s %-8s %-10s %-11s %-10s %-9s %-10s\n" ,
-		  "t","N","M","rh","rj","MS","E", "kappa","S",
+		  "t","RG","N","M","rh","rj","MS","E", "kappa","S",
 		  "t_rh","nc","t_rh'","nc'",
 		  "gamma","lambda","xi","mu","epsilon"); 
 	    fprintf(stderr,"  %-12s %-9s %-9s %-9s %-9s %-9s %-9s %-7s %-5s %-9s %-9s %-9s %-9s %-10s %-10s %-10s %-10s %-10s\n",
@@ -86,20 +86,20 @@ void node::output(stellar_evo se, dynamics dyn){
     
     if (s == 0){	
       if (units  == 0){
-        printf("%12.6e %9.3e %9.3e %9.3e %9.3e %9.3e %9.3e %7.3e %1d   %9.3e %9.3e %10.3e %10.3e %10.3e %10.3e %10.3e\n",
-	time, N, N*mm,rhoc(),rc, rh,rj,kappa,E.source,t_rc,t_rh,
+        printf("%12.6e %9.3e %9.3e %9.3e %9.3e %9.3e %9.3e %9.3e %7.3e %1d   %9.3e %9.3e %10.3e %10.3e %10.3e %10.3e %10.3e\n",
+	time, galaxy.R, N, N*mm,rhoc(),rc, rh,rj,kappa,E.source,t_rc,t_rh,
 	dyn.lambda(),dyn.xi(),dyn.mu(),se.epsilon(),dyn.delta());  
       }
       if (units  == 1){
-        printf("%12.6e %9.3e %9.3e %9.3e %9.3e %9.3e %9.3e %7.3e %1d   %9.3e %9.3e %10.3e %10.3e %10.3e %10.3e %10.3e\n",
-	time*T_star, N, N*mm*M_star,rhoc()*(M_star/pow(R_star,3)),rc*R_star,
+        printf("%12.6e %9.3e %9.3e %9.3e %9.3e %9.3e %9.3e %9.3e %7.3e %1d   %9.3e %9.3e %10.3e %10.3e %10.3e %10.3e %10.3e\n",
+	time*T_star, galaxy.R*R_star, N, N*mm*M_star,rhoc()*(M_star/pow(R_star,3)),rc*R_star,
 	rh*R_star,rj*R_star,kappa,E.source,t_rc*T_star,t_rh*T_star,
 	dyn.lambda(),dyn.xi(),dyn.mu(),se.epsilon(),dyn.delta());
 	}
     }
     else{	
-        printf("%12.6e %9.3e %9.3e %9.3e %9.3e %9.3e %9.3e %7.3e  %1d  %9.3e %9.3e %10.3e %10.3e %10.3e %10.3e %10.3e %10.3e %10.3e\n",
-	time*T_star, N, N*mm*M_star,rh*R_star,rj*R_star, MS, E.value,
+        printf("%12.6e %9.3e %9.3e %9.3e %9.3e %9.3e %9.3e %9.3e %7.3e  %1d  %9.3e %9.3e %10.3e %10.3e %10.3e %10.3e %10.3e %10.3e %10.3e\n",
+	time*T_star, galaxy.R*R_star ,N, N*mm*M_star,rh*R_star,rj*R_star, MS, E.value,
         kappa, E.source, t_rh*T_star, trhelapsed, t_rhp*T_star, trhpelapsed,
 	dyn.gamma(), dyn.lambda(),dyn.xi(),dyn.mu(),se.epsilon());
     }
