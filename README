@@ -1,0 +1,90 @@
+	 Evolve Me A Cluster of StarS (EMACSS) - version 3.10
+	 By: Poul Alexander (University of Cambridge)
+ 	     Mark Gieles (University of Surrey)
+	     Henny Lamers (University of Amsterdam)
+	     Holger Baumgardt (University of Brisbane)
+
+	 EMACSS is a numerical integrator that solves for the
+	 differential equations:
+
+	  dE/dt = f(N,r,p) = - epsilon*E/t_rh'
+
+	  dN/dt = g(N,r,p) = - xi*N/t_rh'
+
+	  drh/dt = h(N,r,p) = mu*r/t_rh'
+
+	  drc/dt = h(N,r,p) = delta*r/t_rh'
+
+	  dmm/dt = i(N,r,p) = gamma*mm/t_rh'
+
+	  dk/dt = h(N,r,p) = lambda*r/t_rh'
+
+	 where 
+	 epsilon = -lambda+mu+2xi 
+	 xi = f(N,r,rt)
+	 mu = f(rh,rt,rc,N,kappa)
+	 delta = f(t_rh,t_rc,N,xi)
+	 lambda = f(rc,rh,kappa)
+	 gamma = f(N,r,rt,t)
+	 t_rh' = t_rh/psi(t)
+
+	 p is an array of variables defining the conditions at any given time.
+	 psi is a decreasing function of time.
+	 zeta defines the fractional flow of energy per half-mass
+	 relaxation time and stellar evolution.
+
+	 Full documentation is available in Alexander & Gieles 2012, 
+	 Gieles, Alexander, Lamers and Baumgardt 2013, and 
+	 Alexander, Gieles, Lamers and Baumgardt 2014.
+
+	 The options to specify a cluster (initial number of stars,
+	 half mass radius) can be specified with appropriate options 
+	 (see below) 
+	 The output is printed directly onto the command line; we 
+	 therefore suggest piping this output into a file or plotting
+	 package.
+
+	 emacss [options] > [output]
+
+	 Although note that the output is formatted (see 'head' for the 
+	 format of output files. 
+
+	 Options:
+	 -help: Displays this file.
+	 -version: Displays the current version number and version log.
+	 -o: (Output) N-body or Real units. 
+		 0=N-body (see Heggie & Mathieu 1986)
+		 1=Real [parsec, solar masses, Myr] 
+		 2=Real and N-body alternating 
+	 -N: initial number of stars in cluster.
+	 -r: initial half-mass radius of cluster. 
+	 -m: mean mass of stars [solar masses].
+	 -R: initial ratio of half-mass to Jacobi radius.
+	 -g: Galaxy type: 0 - isolated, 1 = point mass, 2 = isothermal
+	 -M: mass of point mass galaxy around which the cluster is
+	     in orbit [units set by -o].
+	 -d: distance to the point mass galaxy around which the cluster
+	     is in orbit [units set by -o].
+	 -v: Orbital velocity of cluster around galaxy. [units set by 
+	     -o]
+	 -z: value for zeta. Defaults to 0.111 for equal mass clusters.
+	 -s: Stellar Evolution flag (0 = off, equal mass, 1 = on, IMF).
+	 -u: Upper limit of IMF (M_sun)
+	 -l: Lower limit of IMF (M_sun)
+	 -f: (Experimental) Dynamical Friction flag (0 = off, 1 = on).
+
+	 Tidal field is specified first by MG and RG, if these are
+	 provided. If one or both are missing, the code will first 
+	 attempt to use orbital velocity, then filling factor rhrj.
+
+	 When options are not defined a 64k isolated cluster is used.
+
+	 If used to represent clusters of equal mass stars, the code
+	 is only accurate from the start (i.e., throughout core 
+	 collapse.
+
+	 The default output is N-body units. If option 2 is used
+	 N-body and real units alternate. 
+
+	 Happy evolving!
+
