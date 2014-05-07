@@ -12,6 +12,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 
 using namespace std;
 /**************************************************************/
@@ -63,7 +64,7 @@ class dynamics{
   double P();                             //Tidal Factor (AG2012, eq: 25)
   double K();                             //Core Factor (GALB2013, eq: 29)
   double k();
-  double y[];
+  double y();
   node *mynode;
   double R1, N1, x, z, xi1, f;            //Tidal characteristics (set at start)
   double delta_1, delta_2;                //Core characteristics
