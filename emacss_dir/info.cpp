@@ -6,7 +6,7 @@
  Alexander, Gieles and Lamers 2013.*/
 
 void help(){
-  cout << "\t Evolve Me A Cluster of StarS (EMACSS) - version 2.03";
+  cout << "\t Evolve Me A Cluster of StarS (EMACSS) - version 3.10";
   cout << '\n';
   cout << "\t By: Poul Alexander (University of Cambridge)\n ";
   cout << "\t     Mark Gieles (University of Surrey)\n";
@@ -16,15 +16,17 @@ void help(){
   cout << "\t EMACSS is a numerical integrator that solves for the\n";
   cout << "\t differential equations:\n";
   cout << '\n';
-  cout << "\t  dE/dt = f(N,r,p) = - epsilon*E/t_rh\n";
+  cout << "\t  dE/dt = f(N,r,p) = - epsilon*E/t_rh'\n";
   cout << '\n';
-  cout << "\t  dN/dt = g(N,r,p) = - xi*N/t_rh\n";
+  cout << "\t  dN/dt = g(N,r,p) = - xi*N/t_rh'\n";
   cout << '\n';
-  cout << "\t  drh/dt = h(N,r,p) = mu*r/t_rh\n";
+  cout << "\t  drh/dt = h(N,r,p) = mu*r/t_rh'\n";
   cout << '\n';
-  cout << "\t  drc/dt = h(N,r,p) = delta*r/t_rh\n";
+  cout << "\t  drc/dt = h(N,r,p) = delta*r/t_rh'\n";
   cout << '\n';
-  cout << "\t  dk/dt = h(N,r,p) = lambda*r/t_rh\n";
+  cout << "\t  dmm/dt = i(N,r,p) = gamma*mm/t_rh'\n";
+  cout << '\n';
+  cout << "\t  dk/dt = h(N,r,p) = lambda*r/t_rh'\n";
   cout << '\n';
   cout << "\t where \n";
   cout << "\t epsilon = -lambda+mu+2xi \n";
@@ -32,13 +34,17 @@ void help(){
   cout << "\t mu = f(rh,rt,rc,N,kappa)\n";
   cout << "\t delta = f(t_rh,t_rc,N,xi)\n";
   cout << "\t lambda = f(rc,rh,kappa)\n";
+  cout << "\t gamma = f(N,r,rt,t)\n";
+  cout << "\t t_rh' = t_rh/psi(t)\n"; 
   cout << '\n';	
   cout << "\t p is an array of variables defining the conditions at any given time.\n";
+  cout << "\t psi is a decreasing function of time.\n";
   cout << "\t zeta defines the fractional flow of energy per half-mass\n";
   cout << "\t relaxation time and stellar evolution.\n";
   cout << '\n';
   cout << "\t Full documentation is available in Alexander & Gieles 2012, \n";
-  cout << "\t and Gieles, Alexander, Lamers and Baumgardt 2013, \n";
+  cout << "\t Gieles, Alexander, Lamers and Baumgardt 2013, and \n";
+  cout << "\t Alexander, Gieles, Lamers and Baumgardt 2014.\n";
   cout << '\n';
   cout << "\t The options to specify a cluster (initial number of stars,\n";
   cout << "\t half mass radius) can be specified with appropriate options \n";
@@ -71,15 +77,16 @@ void help(){
   cout << "\t -v: Orbital velocity of cluster around galaxy. [units set by \n";
   cout << "\t     -o]\n";
   cout << "\t -z: value for zeta. Defaults to 0.111 for equal mass clusters.\n";
+  cout << "\t -s: Stellar Evolution flag (0 = off, equal mass, 1 = on, IMF).\n";
+  cout << "\t -u: Upper limit of IMF (M_sun)\n";
+  cout << "\t -l: Lower limit of IMF (M_sun)\n";
+  cout << "\t -f: (Experimental) Dynamical Friction flag (0 = off, 1 = on).\n";
   cout << '\n';
   cout << "\t Tidal field is specified first by MG and RG, if these are\n";
   cout << "\t provided. If one or both are missing, the code will first \n";
   cout << "\t attempt to use orbital velocity, then filling factor rhrj.\n";
   cout << '\n';
-  cout << "\t When options are not defined a 64k cluster is used with:\n";
-  cout << "\t N=64k,\n";
-  cout << "\t r=0.78,\n";
-  cout << "\t R=0.1,\n"; 
+  cout << "\t When options are not defined a 64k isolated cluster is used.\n";
   cout << '\n';
   cout << "\t If used to represent clusters of equal mass stars, the code\n";
   cout << "\t is only accurate from the start (i.e., throughout core \n";

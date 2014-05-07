@@ -4,13 +4,15 @@ LM=-lm -std=c99
 
 EMACSS=emacss.cpp input.cpp info.cpp params.cpp cluster.cpp output.cpp
 DYN=dynamics.cpp
+SE=stellar_evolution.cpp 
 EMACSS_OBJ=$(EMACSS:.cpp=.o)
 DYN_OBJ=$(DYN:.cpp=.o)
+SE_OBJ=$(SE:.cpp=.o)
 
 all: emacss
 
-emacss: $(EMACSS_OBJ) $(DYN_OBJ) 
-	$(CPP) $(CFLAGS) $(EMACSS_OBJ) $(DYN_OBJ) $(LM) -o $@
+emacss: $(EMACSS_OBJ) $(DYN_OBJ) $(SE_OBJ)
+	$(CPP) $(CFLAGS) $(EMACSS_OBJ) $(DYN_OBJ) $(LM) $(SE_OBJ) -o $@
 
 clean:
 	rm *.o
@@ -34,4 +36,7 @@ output.o: emacss_dir/output.cpp
 	$(CPP) -g -c $^ -o $@
 
 dynamics.o: dynamics/dynamics.cpp
+	$(CPP) -g -c $^ -o $@
+	
+stellar_evolution.o: stevo/stellar_evolution.cpp
 	$(CPP) -g -c $^ -o $@

@@ -16,20 +16,20 @@ void node::input(int argc, char* argv[]){
     
   zero();  //Zero's the code (i.e., sets a default set of conditions) 
   
-  while (( c = getopt(argc,argv, "N:r:R:m:g:M:d:v:o:z:")) != -1) 
+  while (( c = getopt(argc,argv, "N:r:m:t:M:d:v:z:o:s:R:g:l:u:f:")) != -1) 
     switch (c){
     case ('N'):                              //N bodies
       value = optarg;
-      if (atof(value) < 100 || atof(value) > 1e6){
-	  cerr << "N out of valid range (100-1000000)" << endl;
+      if (atof(value) < 100 || atof(value) > 1e8){
+	  cerr << "N out of valid range (100-10000000)" << endl;
 	  exit(1);
       }
       N = atof(value);
       break;
     case ('r'):                              //r at time=0
       value = optarg;
-      if (atof(value) < 0 || atof(value) > 25){
-	  cerr << "r out of valid range (0-25pc)" << endl;
+      if (atof(value) < 0 || atof(value) > 50){
+	  cerr << "r out of valid range (0-50pc)" << endl;
 	  exit(1);
       }
       rh = atof(value);
@@ -49,7 +49,32 @@ void node::input(int argc, char* argv[]){
 	  exit(1);
       }
       mm = atof(value);
+      mm_se = atof(value);
       break;
+    case ('t'):                              //End time (if wanted)
+      value = optarg;
+      if (atof(value) < 0 ){	
+	  cerr << "Time interval for evolution must be positive" << endl;
+	  exit(1);
+      }
+      out_time = atof(value);
+      break;
+    case ('u'):                              //Maximum of mass function
+      value = optarg;
+      if (atof(value) < 1 || atof(value) > 100){	
+	  cerr << "Maximum stellar mass not in range 1-100" << endl;
+	  exit(1);
+      }
+      m_max = atof(value);
+      break;  
+    case ('l'):                              //Minimum of mass function
+      value = optarg;
+      if (atof(value) < 0 || atof(value) > 1){
+	  cerr << "Minimum stellar mass not in range 0-1" << endl;
+	  exit(1);  
+      }
+      m_min = atof(value);
+      break; 
     case ('g'):                              //galaxy halo type flag
       value = optarg;
       if (atoi(value) < 0 || atoi(value) > 2){
@@ -86,6 +111,22 @@ void node::input(int argc, char* argv[]){
       }
       units = atoi(value);
       break;
+    case ('s'):                              //Stellar Evolution on/off
+      value = optarg;
+      if (atoi(value) < 0 || atoi(value) > 1){
+	  cerr << "Stellar Evolution flag: 1 = Real units, 0 = N-body" << endl;
+	  exit(1);
+      }
+      s = atoi(value);
+      break; 
+    case ('f'):                              //Dynamical Friction on/off
+      value = optarg;
+      if (atoi(value) < 0 || atoi(value) > 1){
+	  cerr << "Dynamical friction flag: 1 = On, 0 = Off" << endl;
+	  exit(1);
+      }
+      galaxy.f = atoi(value);
+      break;
     case ('z'):                              //adjustable zeta (mass function)
       value = optarg;
       if (atof(value) < 0 || atof(value) > 1){
@@ -95,74 +136,60 @@ void node::input(int argc, char* argv[]){
       E.zeta = atof(value);
       break;   
     }
-    initialise();
 }
 
-void node::initialise(){
+void node::initialise(stellar_evo se,dynamics dyn){
   /*Initialises all undefined values - various sections serve various purposes,
     as described.*/
-   double G = 1;                //Gravitational constant (N-body input) 
+  double G = 1;                  //Gravitational constant (N-body input)
+  if (units > 0) G = 4.31572e-3; //pc M_sun^_1 (km^2)(s^-2) (recast)
+  
+  if (units == 0 && s == 1){                 //Checks for valid input
+    cerr << "Fatal error: N-body units not allowed with stellar evolution" << endl;
+    exit(1);
+  } 
+   
+  if (out_time == 0){                        //Check output criterion
+    cerr << "No output time specified; evolving cluster until dissolution." << endl;
+    out_time = numeric_limits<double>::max();
+  }
    
   //Cluster - checks sufficient values are entered (general)
   if (N == 0){                           //Check number of stars supplied.
     cerr << "No number of stars specified. Assuming N=64k" << endl;
     N = 65536;
   }
-  
+     
   if (E.zeta == 0){                //Check energy conduction defined
     cerr << "No zeta specified. Assuming default (zeta = 0.1)" << endl;   
     E.zeta = 0.1;
   }
-   
-  if (rh != 0.78 && units == 0){       //Check radius
-    cerr << "Half mass radius entered but N-body units. Ignoring entry" << endl;   
-  }
-   
-  if (Rhj == 0 && galaxy.M == 0 && galaxy.R == 0 && galaxy.v == 0){//Check gal
-    cerr << "No tidal field specified - assuming rh/rj = 0.1" << endl;   
-    Rhj = 0.1;
-  }
-  //Cluster - checks sufficient values are entered (real output units)
-  if (units > 0){
-    if (mm == 0 && units > 0){                //Check mass of cluster supplied.
-      cerr << "No initial mean mass specified. Assuming mm = 0.5M_sun" << endl;
-      mm = 0.5;  
-    } 
-
-    if (rh == 0.78){      //Check radius of cluster supplied.
-      cerr << "No initial radius specified. Assuming r = 0.78pc" << endl;
-      rh = 0.78;    
-    }
-    
-  //Sets unit conversions - Assumes conversion to Plummer sphere
-    pcMyr = 0.977813106 ;                   //Converts km/s to pc/Myr
-    G_star = 0.00449857;                    //Grav constant (pc^3M_sun^-1Myr^-2)
-    M_star = mm*N;                          //Initial Mass of cluster (M_sun)
-
-    R_star = rh/0.78;                       // (parsec / N-body)
-    T_star = sqrt(pow(R_star,3)/(M_star*G_star)); //N-body time (Myr)
   
-  //To check galaxy conditions
-    G = 4.31572e-3;    //pc M_sun^_1 (km^2)(s^-2), for galaxy setup
+  if (mm == 0){      
+    cerr << "No initial mean mass specified. Assuming mm = 0.64M_sun" << endl;
+    if (units == 1) mm = 0.64; 
+    else mm = 1.0/N;
   }
-   
- //Sets final factors needed - kappa, mass, E, trh , trc, and rj
- if (units < 1){
-   mm = 1.0/N; rh = 0.78; kappa = rh/(4.0*rv);
-   t_rh = trh(); t_rc = trc(); E.value = E_calc(); trhelapsed = 0; 
- }
-
- //Galaxy set up - if unset, uses solar neighbourhood of MW-like galaxy.
+  
+  if (rh== 0){
+      if (units == 0) rh = 0.78;
+      else rh = 1.0;
+  }
+         
+ //Galaxy set up - if unset, uses isolated.
   if (galaxy.M == 0 && galaxy.R != 0 && galaxy.v != 0){ 
     galaxy.M = (pow(galaxy.v,2)*galaxy.R)/G;
+    if (galaxy.type == 0) galaxy.type = 2;
     cerr << "Galaxy set by velocity and radius" << endl;
   }
   else if (galaxy.M != 0 && galaxy.R == 0 && galaxy.v != 0){
     galaxy.R = (G*galaxy.M)/pow(galaxy.v,2);
-    cerr << "Galaxy set by mass and velocity" << galaxy.R << endl;
+    if (galaxy.type == 0) galaxy.type = 2;
+    cerr << "Galaxy set by radius and mass" << galaxy.R << endl;
   }
   else if (galaxy.M != 0 && galaxy.R != 0 && galaxy.v == 0){
     galaxy.v = pow((G*galaxy.M)/galaxy.R,1.0/2.0);
+    if (galaxy.type == 0) galaxy.type = 2;
     cerr << "Galaxy set by mass and radius" << endl;
   }
   else if (Rhj != 0){
@@ -170,44 +197,87 @@ void node::initialise(){
     if (galaxy.M == 0) galaxy.M = 1e10; //Assumption - makes it work
     if (galaxy.type == 1)
       galaxy.R = (rh/Rhj)*pow((3.0*galaxy.M)/(N*mm),1.0/3.0);
-    else if (galaxy.type == 2)
+    else{
       galaxy.R = (rh/Rhj)*pow((2.0*galaxy.M)/(N*mm),1.0/3.0);
+      galaxy.type = 2;
+    }
     galaxy.v = pow((G*galaxy.M)/galaxy.R,1.0/2.0);
   }
   else{
     cerr << "Insufficient galaxy data supplied. Assuming isolated..." << endl;
     galaxy.type = 0;
   }
+ 
   
-  //If needed, converts galaxy to N-body units
-  if (units > 0){ 
+  if (s == 0 && galaxy.type == 0){                 //Checks for valid input
+    cerr << "Fatal error: cannot handle isolated cluster without stellar evolution." << endl;
+    exit(1);
+  } 
+   
+  //Checks enough data for real output units
+  if (units == 1){            
+    if (rh == 0){   
+      if (galaxy.type == 0){
+        cerr << "Isolated galaxy and no initial radius. Set r0=1pc" << endl;
+        rh = 1.0;
+      }
+      else if (galaxy.type == 1)
+        rh = Rhj*pow((G*N*mm)/(3*pow(galaxy.v,2))*pow(galaxy.R,2),1.0/3.0);
+      else if (galaxy.type == 2)
+        rh = Rhj*pow((G*N*mm)/(2*pow(galaxy.v,2))*pow(galaxy.R,2),1.0/3.0); 
+    }
+    
+  //Sets unit conversions - Assumes conversion to Plummer sphere
+    pcMyr = 0.977813106 ;                   //Converts km/s to pc/Myr
+    G_star = 0.00449857;                    //Grav constant (pc^3M_sun^-1Myr^-2)
+    M_star = mm*N;                          //Initial Mass of cluster (M_sun)
+    R_star = rh/0.78;                       //Virial radii (parsec / N-body)
+    T_star = sqrt(pow(R_star,3)/(M_star*G_star)); //N-body time (Myr)
+
+  //If needed, converts galaxy to N-body units 
     galaxy.M = galaxy.M/M_star;
     galaxy.R = galaxy.R/R_star;
     galaxy.v = (galaxy.v*pcMyr)/(R_star/T_star); 
-    mm = 1.0/N; rh = 0.78; kappa = rh/(4.0*rv);
-    t_rh = trh(); t_rc = trc(); E.value = E_calc(); trhelapsed = 0; 
   }
- 
-  //A few more factors set (that need the galaxy conditions)
+  
+  //Sets up RG^2 for dynamical friction 
+  galaxy.R2 = pow(galaxy.R,2);
+  
+  //Sets Coulomb logarithm
+  if (s == 0) gamma = 0.11;
+  else gamma = 0.02;
+   
+  //Sets final factors needed - kappa, mass, E, trh , trc, and rj
+  mm = 1.0/N; mm_se = mm; rv = 1.0; rh = 0.78; psi = se.psi();
+  t_rh = trh(); t_rc = trc(); t_rhp = trhp();
   rj = r_jacobi(); Rhj = rh/rj; Rch = rc/rh;
-  if (Rhj > 0.33){
-    cerr << "Error: rh/rj out of acceptable range. Exiting..." << endl;
-    exit(10);
+  trhelapsed = 0; trhpelapsed = 0; MS = 3.0; out_time = out_time/T_star;
+  m_min = m_min/M_star; m_max =  m_max/M_star; m_max0 = m_max/M_star; 
+  E.value = E_calc();
+  
+  if (s == 0) kappa = k0 = rh/(4.0*rv);
+  else kappa = 0.2;
+  
+  if (galaxy.type != 0 && Rhj > 0.5){             //Extra check of ratio Rhj 
+    cerr << "Warning: rh/rj > 0.5 (out of acceptable range). ";
+    cerr << "This is NOT advised." <<  endl;
   }
-
+  
   //Sets pointer array for required parameters
   nbody[0] = &time; 
   nbody[1] = &E.value; 
   nbody[2] = &N;
   nbody[3] = &mm; 
-  nbody[4] = &rh; 
-  nbody[5] = &rj;
-  nbody[6] = &t_rh; 
-  nbody[7] = &kappa;
+  nbody[4] = &mm_se; 
+  nbody[5] = &rh; 
+  nbody[6] = &rc;
+  nbody[7] = &rj;
   nbody[8] = &trhelapsed;
-  nbody[9] = &rc;
-  nbody[10] = &t_rc;
-  
+  nbody[9] = &trhpelapsed;
+  nbody[10] = &kappa;
+  nbody[11] = &MS;
+  nbody[12] = &galaxy.R2;
+
   cerr << endl;
 }
 
@@ -215,16 +285,28 @@ void node::zero(){
   /*Initialises a cluster to unphysical values. These are default flags used
     by the code to detect which properties are user defined.*/
   cerr << endl; 
-  cerr << "Evolve Me A Cluster of Stars v2.03" << endl;
+  cerr << "Evolve Me A Cluster of Stars v3.10" << endl;
   cerr << "-----------------------------------------"<<endl; 
   
-  galaxy.M = galaxy.R = galaxy.v = 0; galaxy.type = 1;
-  G_star = M_star = R_star = T_star = 1;
-  time = 0;                       //Out time = termination time.
-  N = 0;  mm = 0; mm = 0; Rhj = 0; 
-
-  rh = 0.78; rv = 1.0; rc = 0.32; Rhj = 0;  
-  kappa = E.zeta = E.source = 0;
+  //General Properties
+  N = 0; rh = 0; rv = 1.0; rc = 0.32; Rhj = 0;
   
-  units = 1; //Default = output in Real units
+  //Masses
+  mm = mm_se = 0; m_min = 0.1; m_max = 100; 
+  
+  //Normalisation
+  G_star = M_star = R_star = T_star = 1;
+  
+  //Galaxy
+  galaxy.M = galaxy.R = galaxy.v = 0; galaxy.type = 1, galaxy.f = 0;
+  
+  //Times: out time = termination time, t_ref = reference time.
+  time = 0; out_time = 0; tcc = 0;
+  
+  //Form factors
+  kappa = k0 = 0; psi = 0;
+  
+  E.zeta = 0; E.source = 0;
+  
+  units = 1; s = 1; //Default = stellar evo on, output in Real units
 }
