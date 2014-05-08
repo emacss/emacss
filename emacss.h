@@ -12,6 +12,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 
 using namespace std;
 /**************************************************************/
@@ -83,7 +84,6 @@ class stellar_evo{
 /*The following is the dynamics module - models pure dynamical effects*/
 class dynamics{
   double P(), K(), k(), f_ind(), F();   //Tidal Factor (AG2012, eq: 25)
-  double y[];
   node *mynode;
   stellar_evo *myse;
   double R1, N1, x, z, xi1, f, t_df, Fej;    //Tidal characteristics (set at start)
