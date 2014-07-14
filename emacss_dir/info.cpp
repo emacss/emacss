@@ -69,7 +69,8 @@ void help(){
   cout << "\t -r: initial half-mass radius of cluster. \n";
   cout << "\t -m: mean mass of stars [solar masses].\n";
   cout << "\t -R: initial ratio of half-mass to Jacobi radius.\n";
-  cout << "\t -g: Galaxy type: 0 - isolated, 1 = point mass, 2 = isothermal\n"; 
+  cout << "\t -g: Galaxy type: 0 - isolated, 1 = in tidal field. Tidal field\n";
+  cout << "\t	  assumed to be point mass if s = 0, isothermal otherwise.\n"; 
   cout << "\t -M: mass of point mass galaxy around which the cluster is\n";
   cout << "\t     in orbit [units set by -o].\n";
   cout << "\t -d: distance to the point mass galaxy around which the cluster\n";

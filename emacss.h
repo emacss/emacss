@@ -12,7 +12,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <unistd.h>
 
 using namespace std;
 /**************************************************************/
@@ -56,7 +55,7 @@ class node{                       //Binding of cluster parameters at given time
   double time, t_rh, t_rhp, t_rc, tcc, out_time, tdf;      //Times
   energy E;                                                //Energies
   double N, kappa, trhelapsed, trhpelapsed, MS, frac, psi; //Dimensionless
-  double mm, mm_se, m_max, m_max0,  m_min;                 //Masses
+  double mm, mm_se, m_max, m_max0,  m_min, m_b;            //Masses
   double rh, rv, rj, rc;                                   //Radii
   double Rhj, Rch;                                         //Ratios
   double gamma, k0, k1, Rch0;                              //Changeable parameters
@@ -84,6 +83,7 @@ class stellar_evo{
 /*The following is the dynamics module - models pure dynamical effects*/
 class dynamics{
   double P(), K(), k(), f_ind(), F();   //Tidal Factor (AG2012, eq: 25)
+  double y[];
   node *mynode;
   stellar_evo *myse;
   double R1, N1, x, z, xi1, f, t_df, Fej;    //Tidal characteristics (set at start)

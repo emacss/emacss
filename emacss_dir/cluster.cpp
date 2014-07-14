@@ -24,9 +24,9 @@ double node::E_calc(){                              //Equation (1) AG2012
 double node::r_jacobi(){                             //Equation (18) AG2012
   double rj = 0;
   
-  if (galaxy.type == 1)
+  if (s == 0)
     rj = pow((N*mm)/(3.0*galaxy.M),(1.0/3.0))*galaxy.R;
-  else if (galaxy.type == 2)
+  else if (s == 1)
     rj = pow((N*mm)/(2.0*galaxy.M),(1.0/3.0))*galaxy.R;
   
   return rj;
@@ -91,7 +91,7 @@ void node::evolve(stellar_evo se,dynamics dyn){
   
   for (int i=0;i<13;i++) duplicate_nbody[i] = *nbody[i]; //Backup 
   convert(se, dyn);
-  
+
   for (;;){
     for (int i=0;i<13;i++) *nbody[i] = duplicate_nbody[i];
     solve_odes(dr1,se,dyn);
@@ -132,7 +132,7 @@ void node::evolve(stellar_evo se,dynamics dyn){
     
     error = 0;
     for (int i=0;i<13;i++)                   //Checks internal error calculated
-       error = fmax(error, fabs(errs[i] / *nbody[i])*10000); 
+       error = fmax(error, fabs(errs[i] / *nbody[i])*1e6); 
     if (error<= 1.0) break;                 //If error < 0.01% accept step
     if (tstep < 1.01*step_min()) break;          //Minimum stepsize - must proceed!
     step_test = safety*tstep*pow(error,shrink);

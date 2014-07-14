@@ -77,7 +77,7 @@ void node::input(int argc, char* argv[]){
       break; 
     case ('g'):                              //galaxy halo type flag
       value = optarg;
-      if (atoi(value) < 0 || atoi(value) > 2){
+      if (atoi(value) < 0 || atoi(value) > 1){
 	  cerr << "Galaxy Type Invalid" << endl;
 	  exit(1);
       }
@@ -165,7 +165,16 @@ void node::initialise(stellar_evo se,dynamics dyn){
     E.zeta = 0.1;
   }
   
-  if (mm == 0){      
+  if (s == 1){
+    cerr << "Mean mass specified by mass function with m_up." << endl;
+    double A, B, C, D;
+    A = (2.0/0.7)*(pow(m_b,0.7)-pow(m_min,0.7));
+    B = -(1.0/0.3)*(pow(m_max,-0.3)-pow(m_b,-0.3));
+    C = -(2.0/0.3)*(pow(m_b,-0.3)-pow(m_min,-0.3));
+    D = -(1.0/1.3)*(pow(m_max,-1.3)-pow(m_b,-1.3)); 
+    mm = (A+B)/(C+D);
+  }
+  else if (mm == 0){
     cerr << "No initial mean mass specified. Assuming mm = 0.64M_sun" << endl;
     if (units == 1) mm = 0.64; 
     else mm = 1.0/N;
@@ -179,27 +188,27 @@ void node::initialise(stellar_evo se,dynamics dyn){
  //Galaxy set up - if unset, uses isolated.
   if (galaxy.M == 0 && galaxy.R != 0 && galaxy.v != 0){ 
     galaxy.M = (pow(galaxy.v,2)*galaxy.R)/G;
-    if (galaxy.type == 0) galaxy.type = 2;
+    if (galaxy.type == 0) galaxy.type = 1;
     cerr << "Galaxy set by velocity and radius" << endl;
   }
   else if (galaxy.M != 0 && galaxy.R == 0 && galaxy.v != 0){
     galaxy.R = (G*galaxy.M)/pow(galaxy.v,2);
-    if (galaxy.type == 0) galaxy.type = 2;
+    if (galaxy.type == 0) galaxy.type = 1;
     cerr << "Galaxy set by radius and mass" << galaxy.R << endl;
   }
   else if (galaxy.M != 0 && galaxy.R != 0 && galaxy.v == 0){
     galaxy.v = pow((G*galaxy.M)/galaxy.R,1.0/2.0);
-    if (galaxy.type == 0) galaxy.type = 2;
+    if (galaxy.type == 0) galaxy.type = 1;
     cerr << "Galaxy set by mass and radius" << endl;
   }
   else if (Rhj != 0){
     cerr << "Galaxy set by rh/rj" << endl;
     if (galaxy.M == 0) galaxy.M = 1e10; //Assumption - makes it work
-    if (galaxy.type == 1)
+    if (s == 0)
       galaxy.R = (rh/Rhj)*pow((3.0*galaxy.M)/(N*mm),1.0/3.0);
     else{
       galaxy.R = (rh/Rhj)*pow((2.0*galaxy.M)/(N*mm),1.0/3.0);
-      galaxy.type = 2;
+      galaxy.type = 1;
     }
     galaxy.v = pow((G*galaxy.M)/galaxy.R,1.0/2.0);
   }
@@ -213,7 +222,7 @@ void node::initialise(stellar_evo se,dynamics dyn){
     cerr << "Fatal error: cannot handle isolated cluster without stellar evolution." << endl;
     exit(1);
   } 
-   
+
   //Checks enough data for real output units
   if (units == 1){            
     if (rh == 0){   
@@ -221,10 +230,14 @@ void node::initialise(stellar_evo se,dynamics dyn){
         cerr << "Isolated galaxy and no initial radius. Set r0=1pc" << endl;
         rh = 1.0;
       }
-      else if (galaxy.type == 1)
+      else if (s == 0){
         rh = Rhj*pow((G*N*mm)/(3*pow(galaxy.v,2))*pow(galaxy.R,2),1.0/3.0);
-      else if (galaxy.type == 2)
+        cerr << "Stellar evolution off: assuming point mass galaxy" << endl;
+      }
+      else if (s == 1){
         rh = Rhj*pow((G*N*mm)/(2*pow(galaxy.v,2))*pow(galaxy.R,2),1.0/3.0); 
+        cerr << "Stellar evolution on: assuming isothermal galaxy halo" << endl;
+      }
     }
     
   //Sets unit conversions - Assumes conversion to Plummer sphere
@@ -292,7 +305,7 @@ void node::zero(){
   N = 0; rh = 0; rv = 1.0; rc = 0.32; Rhj = 0;
   
   //Masses
-  mm = mm_se = 0; m_min = 0.1; m_max = 100; 
+  mm = mm_se = 0; m_min = 0.1; m_max = 100; m_b = 0.5;
   
   //Normalisation
   G_star = M_star = R_star = T_star = 1;
