@@ -1,6 +1,6 @@
 CPP=g++
 CFLAGS=-g -fast
-LM=-lm -std=c99
+LM=-lm -std=gnu99
 
 EMACSS=emacss.cpp input.cpp info.cpp params.cpp cluster.cpp output.cpp
 DYN=dynamics.cpp

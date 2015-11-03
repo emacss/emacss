@@ -3,11 +3,13 @@
 void node::input(int argc, char* argv[]){
   /*Gets conditions of N-body run - uses standard C getopt function for 
     command line input. If values are not supplied, defaults are used.*/
-
+  extern int optind;
+  optind = 1;
   string check;
   int c;
   char *value = NULL;
-  
+
+
   if (argc > 1) { 
     check = argv[1];
     if (check == "-help" || check == "-h") help();
@@ -15,9 +17,12 @@ void node::input(int argc, char* argv[]){
   }
     
   zero();  //Zero's the code (i.e., sets a default set of conditions) 
-  
+
+
   while (( c = getopt(argc,argv, "N:r:m:t:M:d:v:z:o:s:R:g:l:u:f:")) != -1) 
+
     switch (c){
+
     case ('N'):                              //N bodies
       value = optarg;
       if (atof(value) < 100 || atof(value) > 1e8){
@@ -53,11 +58,13 @@ void node::input(int argc, char* argv[]){
       break;
     case ('t'):                              //End time (if wanted)
       value = optarg;
+
       if (atof(value) < 0 ){	
 	  cerr << "Time interval for evolution must be positive" << endl;
 	  exit(1);
       }
       out_time = atof(value);
+
       break;
     case ('u'):                              //Maximum of mass function
       value = optarg;

@@ -9,7 +9,7 @@
 #include <cstring>
 #include <cmath>
 #include <limits>
-
+#include <getopt.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -48,6 +48,8 @@ class node{                       //Binding of cluster parameters at given time
   void input(int, char*[]);
   void initialise(stellar_evo,dynamics);
   void zero();
+  // MAark
+  void tophys();
   void load(dynamics*,stellar_evo*);
   void evolve(stellar_evo,dynamics);
   void output(stellar_evo,dynamics);
@@ -83,7 +85,7 @@ class stellar_evo{
 /*The following is the dynamics module - models pure dynamical effects*/
 class dynamics{
   double P(), K(), k(), f_ind(), F();   //Tidal Factor (AG2012, eq: 25)
-  double y[];
+  //  double y[];
   node *mynode;
   stellar_evo *myse;
   double R1, N1, x, z, xi1, f, t_df, Fej;    //Tidal characteristics (set at start)
