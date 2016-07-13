@@ -188,5 +188,5 @@ void node::convert(stellar_evo se,dynamics dyn){
     rj = r_jacobi(); Rhj = rh/rj; Rch = rc/rh;
     
     //Dynamical Friction Functions
-    if (galaxy.f == 0) dyn.tdf(M_star, R_star, pcMyr, T_star);
+    if (galaxy.f == 1) dyn.tdf(M_star, R_star, pcMyr, T_star);
 }
